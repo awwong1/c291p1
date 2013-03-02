@@ -187,7 +187,9 @@ public class proj1 {
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
 			    String last_login = rset.getString("last_login");
-			    last_login = last_login.substring(0, last_login.length() - 2);
+			    if (last_login == null){
+				last_login = last_login.substring(0, last_login.length() - 2);
+			    }
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
 					       ", your last login was at " + last_login +".");
 			    
