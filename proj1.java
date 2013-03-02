@@ -282,7 +282,32 @@ public class proj1 {
 
 			    // Display all reviews that happened between last_login and current system time
 			    
+			    String last_login = rset.getString("last_login");
+			    last_login = last_login.substring(0, last_login.length() - 2);
+			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
+					       ", your last login was at " + last_login +".");
+			    
+			    System.out.println("Displaying reviews from last login to current time:");
+			    // Display all reviews between last_login and current system time
+			    // where reviewee = email
+			    
+			    String display_reviews = "SELECT rdate, rating, text FROM reviews WHERE " + 
+				"lower(reviewee) = lower('" + email + 
+				"') AND rdate BETWEEN (" + 
+				"SELECT last_login FROM users WHERE LOWER(email) = LOWER('" + email +"')) AND " +
+				"CURRENT_TIMESTAMP";
+			    rset = stmt.executeQuery(display_reviews);			    
+			    if (rset.next()){
+				while(rset.next()){
+				    System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + 
+						       rset.getString("reviewer") + " " + rset.getString("rdate"));
+				}
+				System.out.println(" - No more reviews to show - ");
+			    } else {
+				System.out.println(" - No reviews to show - ");				
+			    }
 			    return email;
+			
 			} else {
 			    System.out.println("Invalid email or pass.");
 			}
