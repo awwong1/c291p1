@@ -106,8 +106,20 @@ public class proj1 {
 			}
 			if (selection == 0) {
 			    // Logout user
-			    dblogout(userstate);
+			    logout();
 			    break;
+			}
+			if (selection == 1) {
+			    // Post an ad
+			}
+			if (selection == 2) {
+			    // List own ads
+			}
+			if (selection == 3) {
+			    // Search for ads
+			}
+			if (selection == 4) {
+			    // Search for users
 			}
 		    }
 		    
@@ -289,11 +301,11 @@ public class proj1 {
 	return "RETRY";
     }
 
-    public static void dblogout(String useremail){
+    public static void logout(){
 	// Logs out of the system, sets current system time to last_login
 	System.out.println("Loging out...");
 	String update_lastlogin = "UPDATE users SET last_login = (SELECT CURRENT_TIMESTAMP FROM DUAL) " +
-	    "WHERE lower(email) = lower('" + useremail + "')";
+	    "WHERE lower(email) = lower('" + userstate + "')";
 	
 	try {
 	    stmt.executeUpdate(update_lastlogin);
@@ -301,7 +313,6 @@ public class proj1 {
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
-	useremail = null;
 	userstate = null;
 	return;
 	    
