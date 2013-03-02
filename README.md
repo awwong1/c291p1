@@ -7,6 +7,7 @@ This code assumes that the JDBC API's are enabled in the CLASSPATH
 
 bash:
     export CLASSPATH=$CLASSPATH\:.:/oracle/jdbc/lib/classes12.zip
+
 csh/tcsh:
     setenv CLASSPATH=$CLASSPATH\:.:/oracle/jdbc/lib/classes12.zip
 
