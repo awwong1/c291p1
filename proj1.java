@@ -284,7 +284,9 @@ public class proj1 {
 			    // Display all reviews that happened between last_login and current system time
 			    
 			    String last_login = rset.getString("last_login");
-			    last_login = last_login.substring(0, last_login.length() - 2);
+			    if (last_login != null) {
+				last_login = last_login.substring(0, last_login.length() - 2);
+			    }
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
 					       ", your last login was at " + last_login +".");
 			    
