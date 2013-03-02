@@ -18,7 +18,9 @@
 
    Done:
        - Login/Registration
- */
+       - Display reviews between logout and currenttime after login
+       - Logout
+*/
 
 
 
@@ -34,6 +36,7 @@ public class proj1 {
     public static Connection con;
     public static Statement stmt;
     public static ResultSet rset;
+    public static String userstate = null;
 
     public static void main(String args[]) {	
 	// NOTE: This program relies on the use of console. If console does not exist, exit.
@@ -66,7 +69,7 @@ public class proj1 {
 	    
 	    // Step 3: Begin project specifications here
 	    while(true){
-		String userstate = logchoice();
+		userstate = logchoice();
 		if (userstate.equals("RETRY")){
 		    // Iterate through the loop again, just calls userstate again
 		    continue;
@@ -89,7 +92,23 @@ public class proj1 {
 
 		    while(true){
 			// infinite loop here
-			String selection = console.readLine("Enter selection (0-4): <currently not working>");
+			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0 works>:");
+			int selection = 255;
+			try{
+			    selection = Integer.valueOf(raw_selection);
+			} catch (Exception e) {
+			    e.printStackTrace();
+			}
+			if (selection < 0 || selection > 4) {
+			    System.out.print("Entered value '" + raw_selection + "'. ");
+			    System.out.println("Invalid input.");
+			    continue;
+			}
+			if (selection == 0) {
+			    // Logout user
+			    dblogout(userstate);
+			    break;
+			}
 		    }
 		    
 		}
@@ -121,7 +140,7 @@ public class proj1 {
 	}
 
 	if (login_input == 0) {
-	    System.out.println("Exiting...");
+	    System.out.println("\nExiting program...\n");
 	    try {
 		con.close();
 		stmt.close();
@@ -154,8 +173,30 @@ public class proj1 {
 		    while(rset.next()){
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
+			    String last_login = rset.getString("last_login");
+			    last_login = last_login.substring(0, last_login.length() - 2);
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
-					       ", your last login was at " + rset.getString("last_login")+".");
+					       ", your last login was at " + last_login +".");
+			    
+			    System.out.println("Displaying reviews from last login to current time:");
+			    // Display all reviews between last_login and current system time
+			    // where reviewee = email
+			    
+			    String display_reviews = "SELECT rdate, rating, text FROM reviews WHERE " + 
+				"lower(reviewee) = lower('" + email + 
+				"') AND rdate BETWEEN (" + 
+				"SELECT last_login FROM users WHERE LOWER(email) = LOWER('" + email +"')) AND " +
+				"CURRENT_TIMESTAMP";
+			    rset = stmt.executeQuery(display_reviews);			    
+			    if (rset.next()){
+				while(rset.next()){
+				    System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + 
+						       rset.getString("reviewer") + " " + rset.getString("rdate"));
+				}
+				System.out.println(" - No more reviews to show - ");
+			    } else {
+				System.out.println(" - No reviews to show - ");				
+			    }
 			    return email;
 			}
 		    } 
@@ -205,25 +246,18 @@ public class proj1 {
 		try {
 
 		    rset = stmt.executeQuery(check_email);
-		    // System.out.println("Debug flag 0");
 		    if (rset != null) {
-			// System.out.println("Debug flag 3");
 			while(rset.next()) {
 			    String email = rset.getString("email").replaceAll("\\s","");
-			    // System.out.println("Debug flag 4");
 			    if (email.equals(raw_email)) {
 				System.out.println("Email already exists, please try again.");
 				break;
-			    } 
-			    
-			    // System.out.println("Debug flag 1");
+			    } 			    
 			}
 
 			// Create the account
 			stmt.executeUpdate(create_acc);
 
-			// System.out.println("Debug flag 2");
-			
 			// Verify the account
 			String checkUser = "SELECT * FROM users WHERE LOWER(email) = LOWER('" +
 			    raw_email + "') AND pass = '" + pass + "'";
@@ -232,7 +266,10 @@ public class proj1 {
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
-					       ", your last login was at " + rset.getString("last_login")+".");
+					       ", your last visit ended at " + rset.getString("last_login")+".");
+
+			    // Display all reviews that happened between last_login and current system time
+			    
 			    return email;
 			} else {
 			    System.out.println("Invalid email or pass.");
@@ -250,5 +287,23 @@ public class proj1 {
 	// Function should never reach here
 	// my control statements should cover all cases
 	return "RETRY";
+    }
+
+    public static void dblogout(String useremail){
+	// Logs out of the system, sets current system time to last_login
+	System.out.println("Loging out...");
+	String update_lastlogin = "UPDATE users SET last_login = (SELECT CURRENT_TIMESTAMP FROM DUAL) " +
+	    "WHERE lower(email) = lower('" + useremail + "')";
+	
+	try {
+	    stmt.executeUpdate(update_lastlogin);
+	    System.out.println("You have sucessfully logged out.");
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+	useremail = null;
+	userstate = null;
+	return;
+	    
     }
 }
