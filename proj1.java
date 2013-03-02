@@ -55,6 +55,7 @@ public class proj1 {
 	    
 	    // Step 2: Establish the connection
 	    String m_url = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
+	    System.out.println("Connecting to '" + m_ur; + "'...");
 	    String m_userName = console.readLine("Enter username: ");
 	    char[] m_ipassword = console.readPassword("Enter password: ");
 	    String m_password = new String(m_ipassword);
