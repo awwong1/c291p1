@@ -23,8 +23,6 @@
 */
 
 
-
-
 import java.sql.*;
 import java.util.*;
 import java.util.Arrays;
@@ -41,7 +39,7 @@ public class proj1 {
     public static void main(String args[]) {	
 	// NOTE: This program relies on the use of console. If console does not exist, exit.
 	console = System.console();
-	
+
 	if (console == null){
 	    System.out.println("Failed to get the console instance.");
 	    System.exit(0);
@@ -61,7 +59,8 @@ public class proj1 {
 	    String m_password = new String(m_ipassword);
 	    
 	    con = DriverManager.getConnection(m_url, m_userName, m_password);
-	    stmt = con.createStatement();
+	    stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+				       ResultSet.CONCUR_UPDATABLE);
 
 	    Arrays.fill(m_ipassword, ' ');
 	    m_password = "";
@@ -93,7 +92,7 @@ public class proj1 {
 
 		    while(true){
 			// infinite loop here
-			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0 works>:");
+			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0, 3 works>:");
 			int selection = 255;
 			try{
 			    selection = Integer.valueOf(raw_selection);
@@ -103,7 +102,7 @@ public class proj1 {
 			if (selection < 0 || selection > 4) {
 			    System.out.print("Entered value '" + raw_selection + "'. ");
 			    System.out.println("Invalid input.");
-			    continue;
+       		    continue;
 			}
 			if (selection == 0) {
 			    // Logout user
@@ -117,7 +116,7 @@ public class proj1 {
 			    // List own ads
 			}
 			if (selection == 3) {
-			    // Search for ads
+			    ad_search();
 			}
 			if (selection == 4) {
 			    // Search for users
@@ -187,7 +186,7 @@ public class proj1 {
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
 			    String last_login = rset.getString("last_login");
-			    if (last_login == null){
+			    if (last_login != null){
 				last_login = last_login.substring(0, last_login.length() - 2);
 			    }
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
@@ -347,4 +346,108 @@ public class proj1 {
 	return;
 	    
     }
+
+    public static void ad_search(){
+	String delims = " ";
+	
+	// split keywords input into an array of keywords
+	String keywords_str = console.readLine("Enter keywords: ");
+	String[] keywords = keywords_str.split(delims);
+	
+	String key_search = "SELECT atype, title, price, pdate FROM ads WHERE title LIKE '%" + keywords[0] + "%' OR descr LIKE '%" + keywords[0] + "%'";
+	// add keywords to the SQL query
+	for (int i = 1; i < keywords.length; i++) {
+	    key_search = key_search.concat(" OR title LIKE '%" + keywords[i] + "%' OR descr LIKE '%" + keywords[i] + "%'");
+	}
+	// add order by clause to SQL query
+	
+	key_search = key_search.concat(" ORDER BY pdate DESC");
+	
+	try {
+	    // execute query
+	    rset = stmt.executeQuery(key_search);
+	    ad_print(rset);
+	    
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+    }
+    public static void ad_print(ResultSet rset) {
+	// prints ads in rset in multiples of 5
+	// asks to print more in multiples of 5
+	// NOTE: if there are no more ads to display, still asks to print more
+	int ad_num = 1;
+	int counter = 0;
+	try {
+	    // print query result
+	    while(rset.next() && counter < 5){
+		String rs_atype = rset.getString("atype");
+		String rs_title = rset.getString("title");
+		Float rs_price = rset.getFloat("price");
+		String rs_pdate = rset.getString("pdate");
+		System.out.println((counter) + ": " + rs_atype + " " + rs_title + " " + rs_price + " " + rs_pdate);
+		counter++;
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+	// See more ads or more detail for specific ad
+	System.out.println("To see more ads press 1, to select a specific ad press 2: ");
+	String raw_selection = console.readLine("Press 0 - 2: ");
+	int selection = 255;
+	try{
+	    selection = Integer.valueOf(raw_selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	// more ads
+	if (selection == 1) {
+	    ad_print(rset);
+	}
+	// specific ad
+	if (selection == 2) {
+	    ad_select(rset);
+	}
+    }
+
+    public static void ad_select(ResultSet rset) {
+	String select_title = " ";
+	int counter = 5;
+	// which ad to see
+	String raw_selection = console.readLine("To see specific ad, press it's number: ");
+	int selection = 0;
+	try {
+	    selection = Integer.parseInt(raw_selection);
+	    System.out.println("Selection was: " + selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	try {
+	    while(rset.previous() && counter != selection) {
+		select_title = rset.getString("title");
+		counter--;
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	String more_detail = "SELECT title, descr, location, cat, poster FROM ads WHERE title = '" + select_title + "'";
+	System.out.println(more_detail);
+	try {
+	    // execute query
+	    rset = stmt.executeQuery(more_detail);
+	    while(rset.next()){
+		String rs_title = rset.getString("title");
+		String rs_descr = rset.getString("descr");
+		String rs_location = rset.getString("location");
+		String rs_cat = rset.getString("cat");
+		String rs_poster = rset.getString("poster");
+		System.out.println(rs_title + " " + rs_descr + " " + rs_location + " " + rs_cat + " " + rs_poster);
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+    }
 }
+
