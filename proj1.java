@@ -187,7 +187,7 @@ public class proj1 {
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
 			    String last_login = rset.getString("last_login");
-			    if (last_login == null){
+			    if (last_login != null){
 				last_login = last_login.substring(0, last_login.length() - 2);
 			    }
 			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
@@ -197,20 +197,29 @@ public class proj1 {
 			    // Display all reviews between last_login and current system time
 			    // where reviewee = email
 			    
-			    String display_reviews = "SELECT rdate, rating, text FROM reviews WHERE " + 
+			    String display_reviews = "SELECT rdate, rating, reviewer, text FROM reviews WHERE " + 
 				"lower(reviewee) = lower('" + email + 
 				"') AND rdate BETWEEN (" + 
 				"SELECT last_login FROM users WHERE LOWER(email) = LOWER('" + email +"')) AND " +
-				"CURRENT_TIMESTAMP";
+				"CURRENT_TIMESTAMP ORDER BY CURRENT_TIMESTAMP DESC";
 			    rset = stmt.executeQuery(display_reviews);			    
-			    if (rset.next()){
-				while(rset.next()){
-				    System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + 
-						       rset.getString("reviewer") + " " + rset.getString("rdate"));
+			    Integer increment = 0;
+			    String shownextreviews = null;
+			    while(rset.next()){								
+				System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + rset.getString("reviewer") + " " + rset.getString("rdate"));	   
+				increment++;				
+				if(increment%3 == 0){
+				    shownextreviews = "c";
+				    while (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
+					shownextreviews = console.readLine("Show next 3 reviews (y/n): ");
+					if (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
+					    System.out.println("Invalid input '" + shownextreviews + "'");
+					}
+				    }
+				    if (shownextreviews.equals("n")){
+					break;
+				    }
 				}
-				System.out.println(" - No more reviews to show - ");
-			    } else {
-				System.out.println(" - No reviews to show - ");				
 			    }
 			    return email;
 			}
@@ -280,37 +289,7 @@ public class proj1 {
 			rset.next();
 			String email = rset.getString("email").replaceAll("\\s","");
 			if (email.equals(raw_email)) {
-			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
-					       ", your last visit ended at " + rset.getString("last_login")+".");
-
-			    // Display all reviews that happened between last_login and current system time
-			    
-			    String last_login = rset.getString("last_login");
-			    if (last_login != null) {
-				last_login = last_login.substring(0, last_login.length() - 2);
-			    }
-			    System.out.println("Welcome back, " + rset.getString("name").trim() + 
-					       ", your last login was at " + last_login +".");
-			    
-			    System.out.println("Displaying reviews from last login to current time:");
-			    // Display all reviews between last_login and current system time
-			    // where reviewee = email
-			    
-			    String display_reviews = "SELECT rdate, rating, text FROM reviews WHERE " + 
-				"lower(reviewee) = lower('" + email + 
-				"') AND rdate BETWEEN (" + 
-				"SELECT last_login FROM users WHERE LOWER(email) = LOWER('" + email +"')) AND " +
-				"CURRENT_TIMESTAMP";
-			    rset = stmt.executeQuery(display_reviews);			    
-			    if (rset.next()){
-				while(rset.next()){
-				    System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + 
-						       rset.getString("reviewer") + " " + rset.getString("rdate"));
-				}
-				System.out.println(" - No more reviews to show - ");
-			    } else {
-				System.out.println(" - No reviews to show - ");				
-			    }
+			    System.out.println("Welcome, " + rset.getString("name").trim() + ".");
 			    return email;
 			
 			} else {
@@ -344,7 +323,6 @@ public class proj1 {
 	    e.printStackTrace();
 	}
 	userstate = null;
-	return;
-	    
+	return;    
     }
 }
