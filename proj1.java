@@ -912,9 +912,103 @@ public class proj1 {
 	/**
 	   This function allows a user to create a new category.
 	 */
-	// Under Construction
-	System.out.println("Under Construction...");
-	return null;
+	String newcat = null;
+	String newsupcat = null;
+	String hassuper = null;
+	System.out.println("Creating new category...");
+	while (true) {
+	    newcat = console.readLine("'0' for quit, else enter new category name (max char 10): ");
+	    if (newcat.equals("0")){
+		System.out.println("Back...");
+		return null;
+	    }
+	    if (newcat.length() > 10){
+		System.out.println("Category name too long (value: " + newcat.length() + ")");
+		continue;
+	    }
+	    // check if this value is already a category
+	    String checkcat = "SELECT * from categories WHERE LOWER('CAT') LIKE LOWER('" + newcat + "')";	
+	    try {
+		rset = stmt.executeQuery(checkcat);
+		if (rset.next()){
+		    System.out.println("Category '" + newcat + "' already exists!");
+		} else {
+		    break;
+		}
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    }
+	}
+	// Prompt if this category is a sub category of a supercategory
+	while (true) {
+	    hassuper = console.readLine("'0' for quit, else does this category have a supercategory (y/n): ");
+	    //hassuper = "y";
+	    if (hassuper.equals("0")){
+		System.out.println("Back...");
+		return null;
+	    }
+	    if (hassuper.equals("n")){
+		break;
+	    }
+	    if (hassuper.equals("y")){
+		// Find the supercategory of this category
+		// Supercategories must not have supercategories
+		String listsupercat = "SELECT cat FROM categories WHERE supercat IS null";
+		Integer scatselect = 1;
+		try {
+		    rset = stmt.executeQuery(listsupercat);
+		    System.out.println("# | Super Category");
+		    while(rset.next()){
+			System.out.println(scatselect + " | " + rset.getString("CAT"));
+			scatselect++;
+		    }
+		    Integer selectscat = null;
+		    while(true){
+			// Select the supercategory
+			String raw_selectscat = console.readLine("'0' for back, else select supercategory (1-" + (scatselect-1) + "): ");
+			try {
+			    selectscat = Integer.parseInt(raw_selectscat);
+			    if (selectscat<1 || selectscat>(scatselect-1)){
+				System.out.println("Selection out of range (value: " + selectscat + ")");
+			    } else {
+				break;
+			    }
+			} catch (Exception e){
+			    //e.printStackTrace();
+			    System.out.println("Invalid input '" + raw_selectscat + "'");
+			}
+		    }
+		    Integer moveback = scatselect - selectscat;
+		    for (int i=0; i<moveback; i++){
+			rset.previous();
+		    }
+		    newsupcat = rset.getString("CAT");		    
+		    System.out.println("Supercat assigned to be '" + newsupcat + "'");
+		    break;
+		} catch (SQLException e) {
+		    e.printStackTrace();
+		}		
+	    } else {
+		System.out.println("Invalid input '"+ hassuper +"'");
+	    } 
+	}
+	// Push the new category/supercat to the database
+	
+	String newcategory = null;
+	if (newsupcat == null) {
+	    newcategory = "INSERT INTO categories (CAT) VALUES (lower('" + newcat + "'))";
+	} else {
+	    newcategory = "INSERT INTO categories (CAT, SUPERCAT) VALUES(lower('" + newcat + 
+		"'), lower('" + newsupcat + "'))";
+	}
+	System.out.println(newcategory);
+	try{
+	    stmt.executeUpdate(newcategory);
+	    System.out.println("Sucessfully created new category");
+	} catch (SQLException e){
+	    e.printStackTrace();
+	}
+	return newcat;
     }
 }
 
