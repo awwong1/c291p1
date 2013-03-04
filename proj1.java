@@ -91,7 +91,7 @@ public class proj1 {
 			System.out.println("\nUjiji Options:");
 			System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
 			System.out.println("'3' for search ads, '4' for search users");
-			String raw_selection = console.readLine("Enter selection (0-4) <currently 0, 3, 4 works>:");
+			String raw_selection = console.readLine("Enter selection (0-4) <currently 0, 1, 3, 4 works>:");
 			int selection = 255;
 			try{
 			    selection = Integer.valueOf(raw_selection);
@@ -206,13 +206,14 @@ public class proj1 {
 			    String shownextreviews = null;
 			    if(rset.next()){
 				rset.previous();
-				System.out.println("\nRating | Review Text                    |" +
-						   " Reviewer             | Review Date");
+				System.out.println("\nRating | Reviewer             | Review Date         | Review Text");
 				while(rset.next()){								
 				    System.out.println(rset.getInt("rating") + "      | " + 
-						       rset.getString("text") + " | " + 
 						       rset.getString("reviewer") + " | " + 
-						       rset.getString("rdate"));	   
+						       rset.getString("rdate") + " | " +
+						       rset.getString("text")  						       
+						       );	   
+				    
 				    increment++;				
 				    if(increment%3 == 0){
 					shownextreviews = "c";
@@ -643,8 +644,8 @@ public class proj1 {
 	// At this point, rating is valid. Enter text
 	String rtext = null;
 	while (true){
-	    rtext = console.readLine("Enter review text (max 30 char): ");
-	    if(rtext.length()>30){
+	    rtext = console.readLine("Enter review text (max 80 char): ");
+	    if(rtext.length()>80){
 		System.out.println("Review too long! (length: '"+rtext.length()+"'");
 	    } else {
 		break;
@@ -717,13 +718,14 @@ public class proj1 {
 	/**
 	   Posting an ad:
 	   Select an ad type (S or W):
-	   Enter in the title, price, description, location, and category.
+	   Enter in the title, price, description, location 
+	   Select a category or create a new category
 	   Have the program generate the aid and poster.
 	 */
 	// Select an ad type
 	String adtype = null;
 	while(true){
-	    adtype = console.readLine("'0' for back, else select an Ad Type (s, w): ");
+	    adtype = console.readLine("'0' for quit, else select an Ad Type (s, w): ");
 	    if (adtype.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -735,10 +737,168 @@ public class proj1 {
 		System.out.println("Invalid input '" + adtype + "'");
 	    }
 	}
-	// HOLDING OFF HERE UNTIL PROF GETS HIS DATATYPES TOGETHER
-	
+	// Enter in the title
+	String adtitle = null;
+	while(true){
+	    adtitle = console.readLine("'0' for quit, else enter ad title (max 20 char): ");
+	    if (adtitle.equals("0")){
+		System.out.println("Back...");
+		return;
+	    }
+	    if (adtitle.length() > 20) {
+		System.out.println("Title too long! (length: " + adtitle.length() + ")");
+	    } else {
+		break;
+	    }
+	}
+	// Enter in description
+	String addesc = null;
+	while(true){
+	    addesc = console.readLine("'0' for quit, else enter description (max 40 char): ");
+	    if (addesc.equals("0")){
+		System.out.println("Back...");
+		return;
+	    }
+	    if (addesc.length() > 40) {
+		System.out.println("Description too long! (length: " + addesc.length() + ")");
+	    } else {
+		break;
+	    }
+	}
+	// Enter in location
+	String adlocation = null;
+	while(true){
+	    adlocation = console.readLine("'0' for quit, else enter location (max 15 char): ");
+	    if (adlocation.equals("0")){
+		System.out.println("Back...");
+		return;
+	    }
+	    if (adlocation.length() > 15) {
+		System.out.println("Location too long! (length: " + adlocation.length() + ")");
+	    } else {
+		break;
+	    }
+	}
+	// Enter in price
+	Integer adprice = null;
+	while(true){
+	    String rawadprice = console.readLine("'q' for quit, else enter price: ");
+	    if(rawadprice.equals("q")){
+		System.out.println("Back...");
+		return;
+	    }
+	    try {
+		adprice = Integer.parseInt(rawadprice);
+		break;
+	    } catch (Exception e) {
+		e.printStackTrace();
+		System.out.println("Invalid input '" + rawadprice + "'" );
+	    }
+	}
+
+	// Select the category to post in, or create a new category
+	String adcat = null;
+	String findcategories = "SELECT CAT, SUPERCAT from categories";
+	try {
+	    rset = stmt.executeQuery(findcategories);
+	    Integer catselect = 1;
+	    System.out.println("# | Category   | SuperCategory");
+	    while(rset.next()) {
+		System.out.println(catselect + " | " + rset.getString("CAT") + " | " + rset.getString("SUPERCAT"));
+		catselect++;
+	    }
+	    Integer userselect = null;
+	    while(true){
+		String rawuserselect = console.readLine("'0' for back, 'n' for new category, \nelse select category number (1-" + (catselect - 1)+ "): ");
+		if (rawuserselect.equals("0")) {
+		    System.out.println("Back...");
+		    return;
+		}
+		if (rawuserselect.equals("n")) {
+		    adcat = new_category();
+		    if (adcat == null) {
+			System.out.println("No new category created...");
+			continue;
+		    } else {
+			System.out.println("Selected category '" + adcat + "'");
+			break;
+		    }
+		}
+		try {
+		    userselect = Integer.parseInt(rawuserselect);
+		    if (userselect < 1 || userselect > (catselect -1)){
+			System.out.println("Category selection out of range! (value: '" +userselect +")");
+			continue;
+		    }
+		} catch (Exception e) {
+		    //e.printStackTrace();
+		    System.out.println("Invalid input '" + rawuserselect + "'");
+		    continue;
+		}
+		Integer moveback = catselect - userselect;
+		for (int i = 0; i < moveback; i++){
+		    rset.previous();
+		}
+		adcat = rset.getString("CAT").trim();
+		System.out.println("Selected category '" + adcat + "'");
+		break;
+	    }
+	    
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+	// Find the new aid
+	String findmaxaid = "SELECT MAX(aid) FROM ads";
+	String newaid = null;
+	Integer aidval = null;
+	try {
+	    rset = stmt.executeQuery(findmaxaid);
+	    if (rset.next()){
+		String rawaid = rset.getString(1);
+		// remove the leading 'a'
+		rawaid = rawaid.substring(1);
+		try {
+		    aidval = Integer.parseInt(rawaid);
+		    aidval++;
+		    newaid = "a"+aidval;
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    System.out.println("Parsed aid value is not numerical!");
+		}
+	    } else {
+		newaid = "a001";
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+	// Create the query, send to database
+	String newadquery = "INSERT INTO ads (AID, ATYPE, TITLE, PRICE, DESCR, LOCATION, PDATE, CAT, POSTER) VALUES (" + 
+	    "'" + newaid + "', " + 
+	    "'" + adtype + "', " + 
+	    "'" + adtitle + "', " + 
+	    "'" + adprice + "', " + 
+	    "'" + addesc + "', " + 
+	    "'" + adlocation + "', " +
+	    "CURRENT_TIMESTAMP, " + 
+	    "'" + adcat + "', " + 
+	    "'" + userstate + "')";
+	try {
+	    stmt.executeUpdate(newadquery);
+	    System.out.println("Ad sucessfully posted!");
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	    System.out.println("Failed to post ad.");
+	}
+
 	return;
     }
-    
+    public static String new_category(){
+	/**
+	   This function allows a user to create a new category.
+	 */
+	// Under Construction
+	System.out.println("Under Construction...");
+	return null;
+    }
 }
 
