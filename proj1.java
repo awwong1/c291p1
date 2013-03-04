@@ -78,7 +78,7 @@ public class proj1 {
 		    // allow user search, user logout
 		    // NOTE: At this point, userstate = email
 		    
-		    System.out.println("\nYou are logged in as: " + userstate + ".\n");
+		    System.out.println("\nYou are logged in as: " + userstate + ".");
 		    
 		    // TODO: IMPLEMENT SEARCH FOR ADS : 3
 		    // IMPLEMENT LIST OWN ADS : 2
@@ -203,24 +203,34 @@ public class proj1 {
 			    rset = stmt.executeQuery(display_reviews);			    
 			    Integer increment = 0;
 			    String shownextreviews = null;
-			    while(rset.next()){								
-				System.out.println(rset.getInt("rating") + " " + rset.getString("text") + " " + rset.getString("reviewer") + " " + rset.getString("rdate"));	   
-				increment++;				
-				if(increment%3 == 0){
-				    shownextreviews = "c";
-				    while (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
-					shownextreviews = console.readLine("Show next 3 reviews (y/n): ");
-					if (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
-					    System.out.println("Invalid input '" + shownextreviews + "'");
+			    if(rset.next()){
+				rset.previous();
+				System.out.println("\nRating | Review Text                    |" +
+						   " Reviewer             | Review Date");
+				while(rset.next()){								
+				    System.out.println(rset.getInt("rating") + "      | " + 
+						       rset.getString("text") + " | " + 
+						       rset.getString("reviewer") + " | " + 
+						       rset.getString("rdate"));	   
+				    increment++;				
+				    if(increment%3 == 0){
+					shownextreviews = "c";
+					while (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
+					    shownextreviews = console.readLine("Show next 3 reviews (y/n): ");
+					    if (!shownextreviews.equals("y") && !shownextreviews.equals("n")){
+						System.out.println("Invalid input '" + shownextreviews + "'");
+					    }
+					}
+					if (shownextreviews.equals("n")){
+					    break;
 					}
 				    }
-				    if (shownextreviews.equals("n")){
-					break;
-				    }
 				}
+				System.out.println("- No more reviews to show -");
+			    } else {
+				System.out.println("- No new reviews -");
 			    }
-			    System.out.println("- No more reviews to show -");
-			    return email;
+			    return email;			   
 			}
 		    } 
 		    System.out.println("Invalid email or pass.");
@@ -615,8 +625,60 @@ public class proj1 {
 	}
 	// Write the review here
 	System.out.println("\nWriting review for '"+reviewee+"'...");
-	
-	
+	Integer rating = 0;
+	while(rating < 1 || rating > 5){
+	    String raw_rating = console.readLine("'0' for back, Enter rating(1-5): ");
+	    try{
+		rating = Integer.parseInt(raw_rating);
+		if (rating == 0){
+		    System.out.println("Back...");
+		    return;
+		}
+	    } catch (Exception e){
+		//e.printStackTrace();
+		System.out.println("Invalid input '"+raw_rating+"'");
+	    }
+	}
+	// At this point, rating is valid. Enter text
+	String rtext = null;
+	while (true){
+	    rtext = console.readLine("Enter review text (max 30 char): ");
+	    if(rtext.length()>30){
+		System.out.println("Review too long! (length: '"+rtext.length()+"'");
+	    } else {
+		break;
+	    }
+	}
+	// At this point, text and rating is valid. Find new review ID
+	String RNOQuery = "SELECT MAX(RNO) FROM REVIEWS";
+	Integer newRNO = null;
+	try{
+	    rset = stmt.executeQuery(RNOQuery);
+	    if(rset.next()){
+		newRNO = rset.getInt(1) + 1;
+	    } else {
+		// This line will occur if there are no reviews in the table
+		newRNO = 1;
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	    return;
+	}
+	// Write the query/review here
+	String reviewquery = "INSERT INTO reviews (RNO, RATING, TEXT, REVIEWER, REVIEWEE, RDATE) " + 
+	    "VALUES ('" + newRNO + "', '" +
+	    rating + "', '" +
+	    rtext + "', '" + 
+	    userstate + "', '" +
+	    reviewee + "', " + 
+	    "CURRENT_TIMESTAMP)";
+	try{
+	    stmt.executeUpdate(reviewquery);
+	    System.out.println("Sucessfully wrote a review for '" + reviewee + "'!");
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	    return;
+	}
 	return;
     }
     
