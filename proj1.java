@@ -168,14 +168,14 @@ public class proj1 {
 	    System.out.println("\n1) Login Screen");
 	    while(true) {
 		System.out.println("'0' for back, else enter email:");
-		String raw_email = console.readLine("Enter email: ");
+		String raw_email = console.readLine("Enter email: ").replaceAll("'", "").replace('"', '\0');
 		
 		if (raw_email.equals("0")){
 		    System.out.println("Back...");
 		    return "RETRY";
 		}
 		char[] raw_pass = console.readPassword("Enter pass: ");
-		String pass = new String(raw_pass);
+		String pass = new String(raw_pass).replaceAll("'", "").replace('"', '\0');
 		Arrays.fill(raw_pass, ' ');
 		// Query goes here
 		String checkUser = "SELECT * FROM users WHERE LOWER(email) = LOWER('" +
@@ -250,27 +250,27 @@ public class proj1 {
 	    System.out.println("'0' for back, else enter new email:");
 
 	    while(true){
-		String raw_email = console.readLine("Enter email (up to 20 chars): ").trim();
+		String raw_email = console.readLine("Enter email (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
 		if(raw_email.equals("0")) {
 		    System.out.println("Back...");
 		    return "RETRY";
 		}
-		String raw_email2 = console.readLine("Confirm email: ").trim();
+		String raw_email2 = console.readLine("Confirm email: ").trim().replaceAll("'", "").replace('"', '\0');
 		if(!raw_email.equals(raw_email2)){
 		    System.out.println("Emails do not match.");
 		    continue;
 		}
 		char[] raw_pass = console.readPassword("Enter password (up to 4 chars): ");
 		char[] raw_pass2 = console.readPassword("Confirm password: ");
-		String pass = new String(raw_pass);
-		String pass2 = new String(raw_pass2);
+		String pass = new String(raw_pass).replaceAll("'", "").replace('"', '\0');
+		String pass2 = new String(raw_pass2).replaceAll("'", "").replace('"', '\0');
 		Arrays.fill(raw_pass, ' ');
 		Arrays.fill(raw_pass2, ' ');
 		if (!pass.equals(pass2)){
 		    System.out.println("Passwords do not match.");
 		    continue;
 		}
-		String raw_name = console.readLine("Enter name (up to 20 chars): ").trim();
+		String raw_name = console.readLine("Enter name (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
 		
 		// Check if the email exists in the users table
 		// If the email exists make the user enter information again
@@ -480,7 +480,7 @@ public class proj1 {
 		while(true){
 		    System.out.println("\nSearch user email: ");
 		    System.out.println("'0' for back, else enter email:");
-		    searchemail = console.readLine("Enter email, '0' for back: ");
+		    searchemail = console.readLine("Enter email, '0' for back: ").replaceAll("'", "").replace('"', '\0');
 		    if (searchemail.equals("0")){
 			System.out.println("Back...");
 			break;
@@ -544,7 +544,7 @@ public class proj1 {
 		while(true){
 		    System.out.println("\nSearch user name: ");
 		    System.out.println("'0' for back, else enter name:");
-		    searchname = console.readLine("Enter name, '0' for back: ");
+		    searchname = console.readLine("Enter name, '0' for back: ").replaceAll("'", "").replace('"', '\0');
 		    if (searchname.equals("0")){
 			System.out.println("Back...");
 			break;
@@ -645,7 +645,7 @@ public class proj1 {
 	System.out.println("\nWriting review for '"+reviewee+"'...");
 	Integer rating = 0;
 	while(rating < 1 || rating > 5){
-	    String raw_rating = console.readLine("'0' for back, Enter rating(1-5): ");
+	    String raw_rating = console.readLine("'0' for back, Enter rating(1-5): ").replaceAll("'", "").replace('"', '\0');
 	    try{
 		rating = Integer.parseInt(raw_rating);
 		if (rating == 0){
@@ -660,7 +660,7 @@ public class proj1 {
 	// At this point, rating is valid. Enter text
 	String rtext = null;
 	while (true){
-	    rtext = console.readLine("Enter review text (max 80 char): ");
+	    rtext = console.readLine("Enter review text (max 80 char): ").replaceAll("'", "").replace('"', '\0');
 	    if(rtext.length()>80){
 		System.out.println("Review too long! (length: '"+rtext.length()+"'");
 	    } else {
@@ -741,7 +741,7 @@ public class proj1 {
 	// Select an ad type
 	String adtype = null;
 	while(true){
-	    adtype = console.readLine("'0' for quit, else select an Ad Type (s, w): ");
+	    adtype = console.readLine("'0' for quit, else select an Ad Type (s, w): ").replaceAll("'", "").replace('"', '\0');
 	    if (adtype.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -756,7 +756,7 @@ public class proj1 {
 	// Enter in the title
 	String adtitle = null;
 	while(true){
-	    adtitle = console.readLine("'0' for quit, else enter ad title (max 20 char): ");
+	    adtitle = console.readLine("'0' for quit, else enter ad title (max 20 char): ").replaceAll("'", "").replace('"', '\0');
 	    if (adtitle.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -770,7 +770,7 @@ public class proj1 {
 	// Enter in description
 	String addesc = null;
 	while(true){
-	    addesc = console.readLine("'0' for quit, else enter description (max 40 char): ");
+	    addesc = console.readLine("'0' for quit, else enter description (max 40 char): ").replaceAll("'", "").replace('"', '\0');
 	    if (addesc.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -784,7 +784,7 @@ public class proj1 {
 	// Enter in location
 	String adlocation = null;
 	while(true){
-	    adlocation = console.readLine("'0' for quit, else enter location (max 15 char): ");
+	    adlocation = console.readLine("'0' for quit, else enter location (max 15 char): ").replaceAll("'", "").replace('"', '\0');
 	    if (adlocation.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -798,7 +798,7 @@ public class proj1 {
 	// Enter in price
 	Integer adprice = null;
 	while(true){
-	    String rawadprice = console.readLine("'q' for quit, else enter price: ");
+	    String rawadprice = console.readLine("'q' for quit, else enter price: ").replaceAll("'", "").replace('"', '\0');
 	    if(rawadprice.equals("q")){
 		System.out.println("Back...");
 		return;
@@ -917,7 +917,7 @@ public class proj1 {
 	String hassuper = null;
 	System.out.println("Creating new category...");
 	while (true) {
-	    newcat = console.readLine("'0' for quit, else enter new category name (max char 10): ");
+	    newcat = console.readLine("'0' for quit, else enter new category name (max char 10): ").replaceAll("'", "").replace('"', '\0');
 	    if (newcat.equals("0")){
 		System.out.println("Back...");
 		return null;
@@ -941,7 +941,7 @@ public class proj1 {
 	}
 	// Prompt if this category is a sub category of a supercategory
 	while (true) {
-	    hassuper = console.readLine("'0' for quit, else does this category have a supercategory (y/n): ");
+	    hassuper = console.readLine("'0' for quit, else does this category have a supercategory (y/n): ").replaceAll("'", "").replace('"', '\0');
 	    //hassuper = "y";
 	    if (hassuper.equals("0")){
 		System.out.println("Back...");
@@ -1001,7 +1001,7 @@ public class proj1 {
 	    newcategory = "INSERT INTO categories (CAT, SUPERCAT) VALUES(lower('" + newcat + 
 		"'), lower('" + newsupcat + "'))";
 	}
-	System.out.println(newcategory);
+	// System.out.println(newcategory);
 	try{
 	    stmt.executeUpdate(newcategory);
 	    System.out.println("Sucessfully created new category");
