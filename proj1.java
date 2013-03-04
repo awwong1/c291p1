@@ -57,7 +57,7 @@ public class proj1 {
 	    String m_userName = console.readLine("Enter username: ");
 	    char[] m_ipassword = console.readPassword("Enter password: ");
 	    String m_password = new String(m_ipassword);
-	    
+	    System.out.println("Connecting...");
 	    con = DriverManager.getConnection(m_url, m_userName, m_password);
 	    stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
 				       ResultSet.CONCUR_UPDATABLE);
@@ -86,22 +86,20 @@ public class proj1 {
 		    // IMPLEMENT POST AN AD : 1
 		    // IMPLEMENT LOGOUT : 0
 
-		    System.out.println("Ujiji Options:");
-		    System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
-		    System.out.println("'3' for search ads, '4' for search users");
-
 		    while(true){
 			// infinite loop here
+			System.out.println("Ujiji Options:");
+			System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
+			System.out.println("'3' for search ads, '4' for search users");
 			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0, 3 works>:");
 			int selection = 255;
 			try{
 			    selection = Integer.valueOf(raw_selection);
 			} catch (Exception e) {
-			    e.printStackTrace();
+			    //e.printStackTrace();
 			}
 			if (selection < 0 || selection > 4) {
-			    System.out.print("Entered value '" + raw_selection + "'. ");
-			    System.out.println("Invalid input.");
+			    System.out.println("Invalid input '" + raw_selection + "'");
        		    continue;
 			}
 			if (selection == 0) {
@@ -120,6 +118,8 @@ public class proj1 {
 			}
 			if (selection == 4) {
 			    // Search for users
+			    user_search();
+			    
 			}
 		    }
 		    
@@ -135,15 +135,15 @@ public class proj1 {
 	// This function allows users to login or register as a new user
 	String rvalue = "";
 	System.out.println();
-	System.out.println("Login Screen Selection");
-	System.out.println("'0' for exit, '1' for login, '2' for registration:");
 	int login_input = 255;
 	while (login_input < 0 || login_input > 2){
+	    System.out.println("Login Screen Selection");
+	    System.out.println("'0' for exit, '1' for login, '2' for registration:");
 	    String raw_input = console.readLine("Enter selection (0-2): ");
 	    try {
 		login_input = Integer.valueOf(raw_input);
 	    }catch (Exception e){
-		e.printStackTrace();
+		//e.printStackTrace();
 	    }
 	    if (login_input < 0 || login_input > 2) {
 		System.out.print("Entered value '"+raw_input+"'. ");
@@ -164,10 +164,9 @@ public class proj1 {
 
 	else if (login_input == 1) {
 	    // Login screen here, enter email and pass
-	    System.out.println("1) Login Screen");
-	    System.out.println("'0' for back, else enter email:");
-
+	    System.out.println("\n1) Login Screen");
 	    while(true) {
+		System.out.println("'0' for back, else enter email:");
 		String raw_email = console.readLine("Enter email: ");
 		
 		if (raw_email.equals("0")){
@@ -234,7 +233,7 @@ public class proj1 {
 	else if (login_input == 2) {
 	    // Register user screen here, ask for new email and pass
 	    // NOTE: Currently, length is not restricted. Will be cut off in SQL statememnt execution
-	    System.out.println("2) Register New User");
+	    System.out.println("\n2) Register New User");
 	    System.out.println("'0' for back, else enter new email:");
 
 	    while(true){
@@ -298,9 +297,7 @@ public class proj1 {
 		    }
 		} catch (SQLException e) {
 		    e.printStackTrace();
-		}
-
-		
+		}		
 	    }
 	}
 	
@@ -311,8 +308,8 @@ public class proj1 {
 
     public static void logout(){
 	// Logs out of the system, sets current system time to last_login
-	System.out.println("Loging out...");
-	String update_lastlogin = "UPDATE users SET last_login = (SELECT CURRENT_TIMESTAMP FROM DUAL) " +
+ 	System.out.println("\n0) Loging out...");
+ 	String update_lastlogin = "UPDATE users SET last_login = (SELECT CURRENT_TIMESTAMP FROM DUAL) " +
 	    "WHERE lower(email) = lower('" + userstate + "')";
 	
 	try {
@@ -426,6 +423,113 @@ public class proj1 {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 
+    }
+
+    public static void user_search() {
+	/**
+	   User should be able search by email or search by name
+	   If search by name, returns a result of all users with that name; 
+	   user should be able to select one from the list.
+	*/
+	Integer selection = 255;
+	while(selection<0 || selection>2){
+	    System.out.println("\n4) User Search:");
+	    System.out.println("'0' for back, '1' for email search, '2' for name search");
+	    String raw_selection = console.readLine("Enter selection (0-2): ");
+	    try {
+		selection = Integer.parseInt(raw_selection);
+	    } catch (Exception e) {
+		// e.printStackTrace();
+	    }
+	    if (selection < 0 || selection > 2) {
+		System.out.println("Invalid input: '" + raw_selection + "'");
+	    }
+	    if (selection == 0) {
+		System.out.println("Back...");
+		return;
+	    }	    
+	    if (selection == 1) {
+		// Search by email
+		String searchemail = null;
+		while(true){
+		    System.out.println("Search user email: ");
+		    System.out.println("'0' for back, else enter email:");
+		    searchemail = console.readLine("Enter email, '0' for back: ");
+		    if (searchemail.equals("0")){
+			System.out.println("Back...");
+			break;
+		    }
+		    // Search for a user with the specified email
+		    // If email exists, return name, email, number of ads, average rating
+		    String searchemailquery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
+			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) FULL JOIN reviews ON (users.email = reviews.reviewee) " + 
+			"WHERE lower(users.email) = lower('" + searchemail + "')" + 
+			"GROUP BY users.name, users.email";
+		    
+		    try {
+			rset = stmt.executeQuery(searchemailquery);			
+			if (rset.next()){
+			    System.out.println("User Name            | User Email           | Ads | Rating ");
+			    System.out.println(rset.getString("name") + " | " +
+					       rset.getString("email")+ " | " +
+					       rset.getInt("ads") + "   | " +
+					       rset.getInt("rating"));
+			    // Ask user if they want to write a review for this user
+			    String reviewchoice = null;
+			    while(true){
+				reviewchoice = console.readLine("Write a review for '" + rset.getString("email").trim() + "' (y/n) :"); 
+				if (!reviewchoice.equals("y") && !reviewchoice.equals("n")){
+				    System.out.println("Invalid input '" + reviewchoice + "'");
+				}
+				if (reviewchoice.equals("n")){
+				    break;
+				}
+				if (reviewchoice.equals("y")){
+				    // call write review function with reviewee email
+				    write_review(rset.getString("email").trim());
+				    break;
+				}
+			    }
+
+			} else {
+			    System.out.println("No user by that email.");
+			}
+		    } catch (SQLException e) {
+			e.printStackTrace();
+		    }		    		    
+		}
+	    }	    
+	    if (selection == 2) {
+		// Search by name
+		String searchname = null;
+		while(true){
+		    System.out.println("Search user name: ");
+		    System.out.println("'0' for back, else enter name:");
+		    searchname = console.readLine("Enter name, '0' for back: ");
+		    if (searchname.equals("0")){
+			System.out.println("Back...");
+			break;
+		    }
+		}
+	    }	    
+	}	
+    }
+
+    public static void write_review(String reviewee) {
+	/**
+	   This function takes the class global userstate as the reviewer
+	   and writes a review for the reviewee
+	   This function assumes the two emails are valid.
+	   This function will not allow a user to write a review for himself.
+	 */
+	if(reviewee.equals(userstate)){
+	    System.out.println("You cannot write a review for yourself!");
+	    return;
+	}
+	// Write the review here
+	System.out.println("Review writing currently under construction...");
+
+	return;
     }
 }
 
