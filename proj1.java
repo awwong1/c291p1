@@ -91,7 +91,7 @@ public class proj1 {
 			System.out.println("\nUjiji Options:");
 			System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
 			System.out.println("'3' for search ads, '4' for search users");
-			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0, 3 works>:");
+			String raw_selection = console.readLine("Enter selection (0-4) <currently 0, 3, 4 works>:");
 			int selection = 255;
 			try{
 			    selection = Integer.valueOf(raw_selection);
@@ -461,32 +461,45 @@ public class proj1 {
 		    // If email exists, return name, email, number of ads, average rating
 		    String searchemailquery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
 			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) FULL JOIN reviews ON (users.email = reviews.reviewee) " + 
-			"WHERE lower(users.email) = lower('" + searchemail + "')" + 
+			"WHERE lower(users.email) LIKE lower('%" + searchemail + "%')" + 
 			"GROUP BY users.name, users.email";
 		    
 		    try {
 			rset = stmt.executeQuery(searchemailquery);			
 			if (rset.next()){
-			    System.out.println("User Name            | User Email           | Ads | Rating ");
-			    System.out.println(rset.getString("name") + " | " +
-					       rset.getString("email")+ " | " +
-					       rset.getInt("ads") + "   | " +
-					       rset.getInt("rating"));
-			    // Ask user if they want to write a review for this user
-			    String reviewchoice = null;
-			    while(true){
-				reviewchoice = console.readLine("Write a review for '" + rset.getString("email").trim() + "' (y/n) :"); 
-				if (!reviewchoice.equals("y") && !reviewchoice.equals("n")){
-				    System.out.println("Invalid input '" + reviewchoice + "'");
-				}
-				if (reviewchoice.equals("n")){
-				    break;
-				}
-				if (reviewchoice.equals("y")){
-				    // call write review function with reviewee email
-				    write_review(rset.getString("email").trim());
-				    break;
-				}
+			    rset.previous();
+			    selection = 1;
+			    System.out.println("# | User Name            | User Email           | Ads | Avg Rating ");
+			    while(rset.next()){				
+				System.out.println(selection + " | " + 
+						   rset.getString("name") + " | " +
+						   rset.getString("email")+ " | " +
+						   rset.getInt("ads") + "   | " +
+						   rset.getInt("rating"));
+				selection++;
+			    }			    
+			    Integer userselect = 0;
+			    while(userselect < 1 || userselect > (selection - 1)){
+				String raw_userselect = console.readLine("Select user number (1-" + (selection - 1) +", '0' for back): ");				
+				try{
+				    userselect = Integer.parseInt(raw_userselect);
+				    if(userselect == 0){
+					break;
+				    }
+				    // Choose the user with the email at the row specified
+				    // Move the cursor back the difference of selection and userselect
+				    // ie) if there are 3 people rows, and a user select 3, will move row back 0 times
+				    // if the user selects 1, move the row back 3-1 = 2 times
+				    Integer moveback = selection - userselect;
+				    for(int i = 0; i < moveback; i++){
+					rset.previous();
+				    }
+				    user_options(rset.getString("email").trim());
+				    return;
+				} catch (Exception e){
+				    //e.printStackTrace();
+				    System.out.println("Invalid input '"+raw_userselect+"'");
+				}				
 			    }
 
 			} else {
@@ -519,7 +532,7 @@ public class proj1 {
 			if (rset.next()){
 			    rset.previous();
 			    selection = 1;
-			    System.out.println("# | User Name            | User Email           | Ads | Rating ");
+			    System.out.println("# | User Name            | User Email           | Ads | Avg Rating ");
 			    while(rset.next()){				
 				System.out.println(selection + " | " + 
 						   rset.getString("name") + " | " +
@@ -536,17 +549,12 @@ public class proj1 {
 				    if(userselect == 0){
 					break;
 				    }
-				    // Choose the user with the email at the row specified
-				    // Move the cursor back the difference of selection and userselect
-				    // ie) if there are 3 people rows, and a user select 3, will move row back 0 times
-				    // if the user selects 1, move the row back 3-1 = 2 times
 				    Integer moveback = selection - userselect;
 				    for(int i = 0; i < moveback; i++){
 					rset.previous();
 				    }
-				    System.out.println("Writing a review for '" + rset.getString("email").trim() + "'...");
-				    write_review(rset.getString("email").trim());
-				    break;
+				    user_options(rset.getString("email").trim());
+				    return;
 				} catch (Exception e){
 				    //e.printStackTrace();
 				    System.out.println("Invalid input '"+raw_userselect+"'");
@@ -564,6 +572,36 @@ public class proj1 {
 	    }	    
 	}	
     }
+
+    public static void user_options(String email){
+	/**
+	   This function takes the email given and allows options:
+	   1) See all the reviews posted about this email
+	   2) Write a review for this email
+	 */
+	System.out.println("You have selected '"+email+"'");
+	Integer choice = null;
+	while(true){
+	    String raw_choice = console.readLine("'0' for back, '1' to list all reviews, '2' to write a review: ");
+	    try {
+		choice = Integer.parseInt(raw_choice);
+		if (choice == 0){
+		    break;
+		}
+		if (choice == 1){
+		    list_reviews(email);
+		}
+		if (choice == 2){
+		    write_review(email);
+		}
+	    } catch (Exception e) {
+		e.printStackTrace();
+		System.out.println("Invalid input '"+raw_choice+"'");
+	    }
+	}
+	return;
+    }
+    
     public static void write_review(String reviewee) {
 	/**
 	   This function takes the class global userstate as the reviewer
@@ -576,8 +614,40 @@ public class proj1 {
 	    return;
 	}
 	// Write the review here
-	System.out.println("Review writing currently under construction...");
-
+	System.out.println("\nWriting review for '"+reviewee+"'...");
+	
+	
+	return;
+    }
+    
+    public static void list_reviews(String reviewee){
+	/**
+	   This function takes the reviewee and prints
+	   all the reviews reviewing the reviewee
+	 */
+	System.out.println("\nListing reviews for '"+reviewee+"'...");
+	
+	String display_reviews = "SELECT rdate, rating, reviewer, text FROM reviews WHERE " + 
+	    "lower(reviewee) = lower('" + reviewee + "')";
+	
+	try{
+	    rset = stmt.executeQuery(display_reviews);
+	    if(rset.next()){
+		rset.previous();
+		System.out.println("Review Date         | Rating | Reviewer             | Text");
+		while(rset.next()){
+		    System.out.println(rset.getString("rdate") + " | " +
+				       rset.getInt("rating") + "      | " + 
+				       rset.getString("reviewer") + " | " +
+				       rset.getString("text"));
+		}
+	    } else {
+		System.out.println("No reviews to show!");
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+	
 	return;
     }
 }
