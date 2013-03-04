@@ -88,7 +88,7 @@ public class proj1 {
 
 		    while(true){
 			// infinite loop here
-			System.out.println("Ujiji Options:");
+			System.out.println("\nUjiji Options:");
 			System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
 			System.out.println("'3' for search ads, '4' for search users");
 			String raw_selection = console.readLine("Enter selection (0-4) <currently only 0, 3 works>:");
@@ -219,6 +219,7 @@ public class proj1 {
 				    }
 				}
 			    }
+			    System.out.println("- No more reviews to show -");
 			    return email;
 			}
 		    } 
@@ -268,15 +269,12 @@ public class proj1 {
 		try {
 
 		    rset = stmt.executeQuery(check_email);
-		    if (rset != null) {
-			while(rset.next()) {
-			    String email = rset.getString("email").replaceAll("\\s","");
-			    if (email.equals(raw_email)) {
-				System.out.println("Email already exists, please try again.");
-				break;
-			    } 			    
-			}
-
+		    if (rset.next()) {			
+			System.out.println("Email already exists, please try again.");
+			continue;
+			
+		    }
+		    else{
 			// Create the account
 			stmt.executeUpdate(create_acc);
 
@@ -452,7 +450,7 @@ public class proj1 {
 		// Search by email
 		String searchemail = null;
 		while(true){
-		    System.out.println("Search user email: ");
+		    System.out.println("\nSearch user email: ");
 		    System.out.println("'0' for back, else enter email:");
 		    searchemail = console.readLine("Enter email, '0' for back: ");
 		    if (searchemail.equals("0")){
@@ -503,18 +501,69 @@ public class proj1 {
 		// Search by name
 		String searchname = null;
 		while(true){
-		    System.out.println("Search user name: ");
+		    System.out.println("\nSearch user name: ");
 		    System.out.println("'0' for back, else enter name:");
 		    searchname = console.readLine("Enter name, '0' for back: ");
 		    if (searchname.equals("0")){
 			System.out.println("Back...");
 			break;
 		    }
+		    // Query begins here
+		    String searchnamequery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
+			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) FULL JOIN reviews ON (users.email = reviews.reviewee) " + 
+			"WHERE lower(users.name) LIKE lower('%" + searchname + "%')" + 
+			"GROUP BY users.name, users.email";
+		    
+		    try {
+			rset = stmt.executeQuery(searchnamequery);
+			if (rset.next()){
+			    rset.previous();
+			    selection = 1;
+			    System.out.println("# | User Name            | User Email           | Ads | Rating ");
+			    while(rset.next()){				
+				System.out.println(selection + " | " + 
+						   rset.getString("name") + " | " +
+						   rset.getString("email")+ " | " +
+						   rset.getInt("ads") + "   | " +
+						   rset.getInt("rating"));
+				selection++;
+			    }			    
+			    Integer userselect = 0;
+			    while(userselect < 1 || userselect > (selection - 1)){
+				String raw_userselect = console.readLine("Select user number (1-" + (selection - 1) +", '0' for back): ");				
+				try{
+				    userselect = Integer.parseInt(raw_userselect);
+				    if(userselect == 0){
+					break;
+				    }
+				    // Choose the user with the email at the row specified
+				    // Move the cursor back the difference of selection and userselect
+				    // ie) if there are 3 people rows, and a user select 3, will move row back 0 times
+				    // if the user selects 1, move the row back 3-1 = 2 times
+				    Integer moveback = selection - userselect;
+				    for(int i = 0; i < moveback; i++){
+					rset.previous();
+				    }
+				    System.out.println("Writing a review for '" + rset.getString("email").trim() + "'...");
+				    write_review(rset.getString("email").trim());
+				    break;
+				} catch (Exception e){
+				    //e.printStackTrace();
+				    System.out.println("Invalid input '"+raw_userselect+"'");
+				}				
+			    }			    
+			    
+			} else {
+			    System.out.println("No user by that name.");
+			}
+		    } catch (SQLException e) {
+			e.printStackTrace();
+		    }
+		    
 		}
 	    }	    
 	}	
     }
-
     public static void write_review(String reviewee) {
 	/**
 	   This function takes the class global userstate as the reviewer
