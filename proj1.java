@@ -357,9 +357,10 @@ public class proj1 {
 	}
     }
     public static void ad_print(ResultSet rset) {
-	// prints ads in rset in multiples of 5
-	// asks to print more in multiples of 5
-	// NOTE: if there are no more ads to display, still asks to print more
+	/** prints ads in rset in multiples of 5
+        asks to print more in multiples of 5
+	NOTE: if there are no more ads to display, still asks to print more
+	*/
 	int ad_num = 1;
 	int counter = 0;
 	try {
@@ -395,8 +396,12 @@ public class proj1 {
     }
 
     public static void ad_select(ResultSet rset) {
+	/**
+	   Provides more detail for specific ads, as selected by user
+	 */
 	String select_title = " ";
 	int counter = 5;
+	String rs_poster = " ";
 	// which ad to see
 	String raw_selection = console.readLine("To see specific ad, press it's number: ");
 	int selection = 0;
@@ -407,6 +412,7 @@ public class proj1 {
 	    e.printStackTrace();
 	}
 	try {
+	    // find specified ad
 	    while(rset.previous() && counter != selection) {
 		select_title = rset.getString("title");
 		counter--;
@@ -416,7 +422,6 @@ public class proj1 {
 	}
 
 	String more_detail = "SELECT title, descr, location, cat, poster FROM ads WHERE title = '" + select_title + "'";
-	System.out.println(more_detail);
 	try {
 	    // execute query
 	    rset = stmt.executeQuery(more_detail);
@@ -425,13 +430,24 @@ public class proj1 {
 		String rs_descr = rset.getString("descr");
 		String rs_location = rset.getString("location");
 		String rs_cat = rset.getString("cat");
-		String rs_poster = rset.getString("poster");
+		rs_poster = rset.getString("poster");
 		System.out.println(rs_title + " " + rs_descr + " " + rs_location + " " + rs_cat + " " + rs_poster);
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
-
+	String poster_reviews = "SELECT AVG(rating) AS avg_rating FROM reviews WHERE reviewee LIKE '" + rs_poster + "'";
+	
+	try {
+	    // execute query
+	    rset = stmt.executeQuery(poster_reviews);
+	    while(rset.next()){
+		String rs_avg_rating = rset.getString("avg_rating");
+		System.out.print(rs_avg_rating);
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
     }
 
     public static void user_search() {
