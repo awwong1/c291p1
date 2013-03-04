@@ -109,6 +109,7 @@ public class proj1 {
 			}
 			if (selection == 1) {
 			    // Post an ad
+			    ad_post();
 			}
 			if (selection == 2) {
 			    // List own ads
@@ -708,9 +709,36 @@ public class proj1 {
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();
+	}	
+	return;
+    }
+    
+    public static void ad_post(){
+	/**
+	   Posting an ad:
+	   Select an ad type (S or W):
+	   Enter in the title, price, description, location, and category.
+	   Have the program generate the aid and poster.
+	 */
+	// Select an ad type
+	String adtype = null;
+	while(true){
+	    adtype = console.readLine("'0' for back, else select an Ad Type (s, w): ");
+	    if (adtype.equals("0")){
+		System.out.println("Back...");
+		return;
+	    }
+	    if (adtype.toUpperCase().equals("S")||adtype.toUpperCase().equals("W")){
+		adtype = adtype.toUpperCase();
+		break;
+	    } else {
+		System.out.println("Invalid input '" + adtype + "'");
+	    }
 	}
+	// HOLDING OFF HERE UNTIL PROF GETS HIS DATATYPES TOGETHER
 	
 	return;
     }
+    
 }
 
