@@ -207,13 +207,19 @@ public class proj1 {
 			    String shownextreviews = null;
 			    if(rset.next()){
 				rset.previous();
-				System.out.println("\nRating | Reviewer             | Review Date         | Review Text");
-				while(rset.next()){								
+				System.out.println("\nRating | Reviewer             | Review Date         | Review Text (Up to 40 chars)");
+				while(rset.next()){
+				    String reviewshort = rset.getString("text").substring(0, Math.min(rset.getString("text").length(), 40));
+				    if (rset.getString("text").trim().length() > 40) {
+					reviewshort = reviewshort+"...";
+				    }
 				    System.out.println(rset.getInt("rating") + "      | " + 
 						       rset.getString("reviewer") + " | " + 
 						       rset.getString("rdate") + " | " +
-						       rset.getString("text")  						       
+						       reviewshort 						       
 						       );	   
+				    
+				    
 				    
 				    increment++;				
 				    if(increment%3 == 0){
