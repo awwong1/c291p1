@@ -113,6 +113,7 @@ public class proj1 {
 			}
 			if (selection == 2) {
 			    // List own ads
+			    //own_ads();
 			}
 			if (selection == 3) {
 			    ad_search();
@@ -356,7 +357,26 @@ public class proj1 {
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
+
+	System.out.println("'0' for back, '1' for more ad detail: ");
+	String raw_selection = console.readLine("Enter selection (0-1): ");
+	int selection = 255;
+	try{
+	    selection = Integer.valueOf(raw_selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+
+	// specific ad
+	if (selection == 1) {
+	    ad_moredetail(rset);
+	}
+	// break
+        else {
+	    return;
+	}
     }
+
     public static void ad_print(ResultSet rset) {
 	/** prints ads in rset in multiples of 5
         asks to print more in multiples of 5
@@ -364,39 +384,43 @@ public class proj1 {
 	*/
 	int ad_num = 1;
 	int counter = 0;
+
 	try {
 	    // print query result
-	    while(rset.next() && counter < 5){
+	    while (counter < 5 && rset.next()){
 		String rs_atype = rset.getString("atype");
 		String rs_title = rset.getString("title");
 		Float rs_price = rset.getFloat("price");
 		String rs_pdate = rset.getString("pdate");
-		System.out.println((counter) + ": " + rs_atype + " " + rs_title + " " + rs_price + " " + rs_pdate);
+		System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + " " + rs_price + " " + rs_pdate);
 		counter++;
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
-	// See more ads or more detail for specific ad
-	System.out.println("To see more ads press 1, to select a specific ad press 2: ");
-	String raw_selection = console.readLine("Press 0 - 2: ");
-	int selection = 255;
-	try{
-	    selection = Integer.valueOf(raw_selection);
+	try {
+	    while (!rset.isAfterLast()) {
+		// See more ads
+		System.out.println("'0' for back, '1' for more ads: ");
+		String raw_selection = console.readLine("Enter selection (0-1): ");
+		int selection = 255;
+		selection = Integer.valueOf(raw_selection);
+
+		if (selection == 1) {
+		    ad_print(rset);
+		}
+		else {
+		    return;
+		}
+	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
+	    // more ads
 	}
-	// more ads
-	if (selection == 1) {
-	    ad_print(rset);
-	}
-	// specific ad
-	if (selection == 2) {
-	    ad_select(rset);
-	}
+	return;
     }
-
-    public static void ad_select(ResultSet rset) {
+    
+    public static void ad_moredetail(ResultSet rset) {
 	/**
 	   Provides more detail for specific ads, as selected by user
 	 */
@@ -404,7 +428,7 @@ public class proj1 {
 	int counter = 5;
 	String rs_poster = " ";
 	// which ad to see
-	String raw_selection = console.readLine("To see specific ad, press it's number: ");
+	String raw_selection = console.readLine("Enter ad's number: ");
 	int selection = 0;
 	try {
 	    selection = Integer.parseInt(raw_selection);
@@ -414,10 +438,11 @@ public class proj1 {
 	}
 	try {
 	    // find specified ad
-	    while(rset.previous() && counter != selection) {
-		select_title = rset.getString("title");
-		counter--;
-	    }
+	    rset.absolute(selection);
+	    //	    while(rset.previous() && counter != selection) {
+	    select_title = rset.getString("title");
+	    //counter--;
+	    // }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
@@ -427,12 +452,11 @@ public class proj1 {
 	    // execute query
 	    rset = stmt.executeQuery(more_detail);
 	    while(rset.next()){
-		String rs_title = rset.getString("title");
 		String rs_descr = rset.getString("descr");
 		String rs_location = rset.getString("location");
 		String rs_cat = rset.getString("cat");
 		rs_poster = rset.getString("poster");
-		System.out.println(rs_title + " " + rs_descr + " " + rs_location + " " + rs_cat + " " + rs_poster);
+		System.out.println(rs_descr + " " + rs_location + " " + rs_cat + " " + rs_poster);
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
