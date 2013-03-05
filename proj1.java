@@ -533,7 +533,7 @@ public class proj1 {
 						   rset.getString("name") + " | " +
 						   rset.getString("email")+ " | " +
 						   rset.getInt("ads") + "   | " +
-						   rset.getInt("rating"));
+						   rset.getFloat("rating"));
 				selection++;
 			    }			    
 			    Integer userselect = 0;
@@ -596,7 +596,7 @@ public class proj1 {
 						   rset.getString("name") + " | " +
 						   rset.getString("email")+ " | " +
 						   rset.getInt("ads") + "   | " +
-						   rset.getInt("rating"));
+						   rset.getFloat("rating"));
 				selection++;
 			    }			    
 			    Integer userselect = 0;
