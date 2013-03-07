@@ -207,13 +207,27 @@ public class proj1 {
 			    String shownextreviews = null;
 			    if(rset.next()){
 				rset.previous();
-				System.out.println("\nRating | Reviewer             | Review Date         | Review Text");
-				while(rset.next()){								
+				System.out.println("\nRating | Reviewer             | Review Date           | Review Text (Up to 40 chars)");
+				while(rset.next()){
+				    String reviewshort = rset.getString("text").substring(0, Math.min(rset.getString("text").length(), 40));
+				    if (rset.getString("text").trim().length() > 40) {
+					reviewshort = reviewshort+"...";
+				    }
+				    // Longest date possible yyyy-mm-dd hh:mm:ss:n
+				    String rdateshort = rset.getString("rdate");
+				    if (rdateshort.length() < 21){
+					Integer spaces = 21 - rdateshort.length();
+					for (int i = 0; i<spaces; i++){
+					    rdateshort = rdateshort+" ";
+					}
+				    }
 				    System.out.println(rset.getInt("rating") + "      | " + 
 						       rset.getString("reviewer") + " | " + 
-						       rset.getString("rdate") + " | " +
-						       rset.getString("text")  						       
+						       rdateshort + " | " +
+						       reviewshort 						       
 						       );	   
+				    
+				    
 				    
 				    increment++;				
 				    if(increment%3 == 0){
@@ -720,7 +734,7 @@ public class proj1 {
 		    searchemail = console.readLine("Enter email, '0' for back: ").replaceAll("'", "").replace('"', '\0');
 		    if (searchemail.equals("0")){
 			System.out.println("Back...");
-			break;
+			return;
 		    }
 		    // Search for a user with the specified email
 		    // If email exists, return name, email, number of ads, average rating
@@ -734,15 +748,23 @@ public class proj1 {
 			if (rset.next()){
 			    rset.previous();
 			    selection = 1;
-			    System.out.println("# | User Name            | User Email           | Ads | Avg Rating ");
-			    while(rset.next()){				
-				System.out.println(selection + " | " + 
+			    System.out.println("#  | User Name            | User Email           | Ads  | Avg Rating ");
+			    while(rset.next()){	
+				String tselection = String.valueOf(selection);
+				if(tselection.length() == 1) {
+				    tselection = tselection+" ";
+				}
+				String tads = String.valueOf(rset.getInt("ads"));
+				if(tads.length() == 1) {
+				    tads = tads+" ";
+				}
+				System.out.println(tselection + " | " + 
 						   rset.getString("name") + " | " +
 						   rset.getString("email")+ " | " +
-						   rset.getInt("ads") + "   | " +
-						   rset.getInt("rating"));
+						   tads + "   | " +
+						   rset.getFloat("rating"));
 				selection++;
-			    }			    
+			    }
 			    Integer userselect = 0;
 			    while(userselect < 1 || userselect > (selection - 1)){
 				String raw_userselect = console.readLine("Select user number (1-" + (selection - 1) +", '0' for back): ");				
@@ -784,7 +806,7 @@ public class proj1 {
 		    searchname = console.readLine("Enter name, '0' for back: ").replaceAll("'", "").replace('"', '\0');
 		    if (searchname.equals("0")){
 			System.out.println("Back...");
-			break;
+			return;
 		    }
 		    // Query begins here
 		    String searchnamequery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
@@ -797,13 +819,21 @@ public class proj1 {
 			if (rset.next()){
 			    rset.previous();
 			    selection = 1;
-			    System.out.println("# | User Name            | User Email           | Ads | Avg Rating ");
-			    while(rset.next()){				
-				System.out.println(selection + " | " + 
+			    System.out.println("#  | User Name            | User Email           | Ads  | Avg Rating ");
+			    while(rset.next()){	
+				String tselection = String.valueOf(selection);
+				if (tselection.length() == 1){
+				    tselection = tselection+" ";
+				}
+				String tads = String.valueOf(rset.getInt("ads"));
+				if (tads.length() == 1){
+				    tads = tads+" ";
+				}
+				System.out.println(tselection + " | " + 
 						   rset.getString("name") + " | " +
 						   rset.getString("email")+ " | " +
-						   rset.getInt("ads") + "   | " +
-						   rset.getInt("rating"));
+						   tads + "   | " +
+						   rset.getFloat("rating"));
 				selection++;
 			    }			    
 			    Integer userselect = 0;
@@ -951,9 +981,16 @@ public class proj1 {
 	    rset = stmt.executeQuery(display_reviews);
 	    if(rset.next()){
 		rset.previous();
-		System.out.println("Review Date         | Rating | Reviewer             | Text");
+		System.out.println("Review Date           | Rating | Reviewer             | Text");
 		while(rset.next()){
-		    System.out.println(rset.getString("rdate") + " | " +
+		    String rdateshort = rset.getString("rdate");
+		    if (rdateshort.length() < 21){
+			Integer spaces = 21 - rdateshort.length();
+			for (int i = 0; i<spaces; i++){
+			    rdateshort = rdateshort+" ";
+			}
+		    }
+		    System.out.println(rdateshort + " | " +
 				       rset.getInt("rating") + "      | " + 
 				       rset.getString("reviewer") + " | " +
 				       rset.getString("text"));
