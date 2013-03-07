@@ -113,7 +113,7 @@ public class proj1 {
 			}
 			if (selection == 2) {
 			    // List own ads
-			    //own_ads();
+			    own_ads();
 			}
 			if (selection == 3) {
 			    ad_search();
@@ -333,6 +333,220 @@ public class proj1 {
 	return;    
     }
 
+    public static void own_ads() {
+	String own_ad_search = "SELECT a.aid, a.atype, a.title, a.price, a.pdate, (po.ndays - po.days_diff) AS days_left FROM ads a LEFT OUTER JOIN (SELECT p.aid, to_number(sysdate - p.start_date) AS days_diff, o.ndays FROM purchases p, offers o WHERE p.ono = o.ono) po ON po.aid = a.aid WHERE a.poster = '" + userstate + "' ORDER BY pdate DESC";
+
+	try {
+	    // execute query
+	    rset = stmt.executeQuery(own_ad_search);
+	    own_ad_print(rset);
+	    
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	System.out.println("'0' for back, '1' to delete an ad, '2' to promote an ad: ");
+	String raw_selection = console.readLine("Enter selection (0-2): ");
+	int selection = 255;
+
+	try{
+	    selection = Integer.valueOf(raw_selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+
+	// specific ad
+	if (selection == 1) {
+	    ad_delete(rset);
+	}
+
+	if (selection == 2) {
+	    ad_promote(rset);
+	}
+	// break
+        else {
+	    return;
+	}
+
+    }
+
+    public static void own_ad_print(ResultSet rset) {
+	/** prints ads in rset in multiples of 5
+        asks to print more in multiples of 5
+	NOTE: if there are no more ads to display, still asks to print more
+	*/
+	int ad_num = 1;
+	int counter = 0;
+
+	try {
+	    // print query result
+	    while (counter < 5 && rset.next()){
+		String rs_atype = rset.getString("atype");
+		String rs_title = rset.getString("title");
+		Float rs_price = rset.getFloat("price");
+		String rs_pdate = rset.getString("pdate");
+		int days_left = rset.getInt("days_left");
+		
+		// check if offer is still valid
+      		if (days_left > 0) {
+		    System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title +
+				       " " + rs_price + " " + rs_pdate + " " + days_left);
+		}
+		else {
+		    System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + 
+				       " " + rs_price + " " + rs_pdate);
+		    }
+		counter++;
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+	try {
+	    while (!rset.isAfterLast()) {
+		// See more ads
+		System.out.println("'0' for back, '1' for more ads: ");
+		String raw_selection = console.readLine("Enter selection (0-1): ");
+		int selection = 255;
+		selection = Integer.valueOf(raw_selection);
+
+		if (selection == 1) {
+		    own_ad_print(rset);
+		}
+		else {
+		    return;
+		}
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	return;
+    }
+    
+    public static void ad_promote(ResultSet rset) {
+	/**
+	   Promotes an ad, as selected by user
+	 */
+	String select_title = " ";
+	String select_aid = " ";
+
+	// which ad to promote
+	String raw_selection = console.readLine("Enter ad's number: ");
+	int selection = 0;
+	try {
+	    selection = Integer.parseInt(raw_selection);
+	    System.out.println("Selection was: " + selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	
+	try {
+	    // find specified ad
+	    rset.absolute(selection);
+	    select_title = rset.getString("title");
+	    select_aid = rset.getString("aid");
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	// Display offers to choose from
+	String offers = "SELECT * FROM offers";
+	try {
+	    // execute query
+	    rset = stmt.executeQuery(offers);
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	try {
+	    // print query result
+	    while (rset.next()){
+		String rs_ono = rset.getString("ono");
+		String rs_ndays = rset.getString("ndays");
+		Float rs_price = rset.getFloat("price");
+		System.out.println(rset.getRow() + ": " + rs_ono + " " + rs_ndays + " " 
+				   + rs_price);
+	    }
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	// which promotion
+	raw_selection = console.readLine("Enter number of promotion to add: ");
+	try {
+	    selection = Integer.parseInt(raw_selection);
+	    System.out.println("Selection was: " + selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	
+	// Find the new pid
+	String findmaxaid = "SELECT MAX(pur_id) FROM purchases";
+	String newpid = null;
+	Integer pidval = null;
+	try {
+	    rset = stmt.executeQuery(findmaxaid);
+	    if (rset.next()){
+		String rawpid = rset.getString(1);
+		// remove the leading 'a'
+		rawpid = rawpid.substring(1);
+		try {
+		    pidval = Integer.parseInt(rawpid);
+		    pidval++;
+		    newpid = "p"+pidval;
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    System.out.println("Parsed pid value is not numerical!");
+		}
+	    } else {
+		newpid = "p001";
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	}
+
+	String promote = "INSERT INTO purchases VALUES('" + newpid + "', CURRENT_TIMESTAMP, '" + select_aid + "', " + selection + ")";
+	System.out.println(promote);
+
+	try {
+	    // execute query
+	    stmt.executeUpdate(promote);
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	} 
+    }
+
+    public static void ad_delete(ResultSet rset) {
+	/**
+	   Deletes a specific ad, as selected by user
+	 */
+	String select_title = " ";
+
+	// which ad to delete
+	String raw_selection = console.readLine("Enter ad's number: ");
+	int selection = 0;
+	try {
+	    selection = Integer.parseInt(raw_selection);
+	    System.out.println("Selection was: " + selection);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	try {
+	    // find specified ad
+	    rset.absolute(selection);
+	    select_title = rset.getString("title");
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+
+	String delete_stmt = "DELETE FROM ads WHERE title = '" + select_title + "'";
+	try {
+	    // execute query
+	    stmt.executeUpdate(delete_stmt);
+	} catch(SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	} 
+    }
+    
     public static void ad_search(){
 	String delims = " ";
 	
@@ -425,7 +639,6 @@ public class proj1 {
 	   Provides more detail for specific ads, as selected by user
 	 */
 	String select_title = " ";
-	int counter = 5;
 	String rs_poster = " ";
 	// which ad to see
 	String raw_selection = console.readLine("Enter ad's number: ");
