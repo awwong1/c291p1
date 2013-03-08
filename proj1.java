@@ -80,18 +80,12 @@ public class proj1 {
 		    
 		    System.out.println("\nYou are logged in as: " + userstate + ".");
 		    
-		    // TODO: IMPLEMENT SEARCH FOR ADS : 3
-		    // IMPLEMENT LIST OWN ADS : 2
-		    // IMPLEMENT SEARCH FOR USERS : 4
-		    // IMPLEMENT POST AN AD : 1
-		    // IMPLEMENT LOGOUT : 0
-
 		    while(true){
 			// infinite loop here
 			System.out.println("\nUjiji Options:");
 			System.out.println("'0' for logout, '1' for post ad, '2' for list own ads,");
 			System.out.println("'3' for search ads, '4' for search users");
-			String raw_selection = console.readLine("Enter selection (0-4) <currently 0, 1, 3, 4 works>:");
+			String raw_selection = console.readLine("Enter selection (0-4): ");
 			int selection = 255;
 			try{
 			    selection = Integer.valueOf(raw_selection);
@@ -416,7 +410,7 @@ public class proj1 {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 	try {
-	    while (!rset.isAfterLast()) {
+	    while (rset.isLast() == false && rset.isAfterLast() == false) {
 		// See more ads
 		System.out.println("'0' for back, '1' for more ads: ");
 		String raw_selection = console.readLine("Enter selection (0-1): ");
@@ -442,15 +436,28 @@ public class proj1 {
 	 */
 	String select_title = " ";
 	String select_aid = " ";
-
-	// which ad to promote
-	String raw_selection = console.readLine("Enter ad's number: ");
+	Boolean correct_input = false;
 	int selection = 0;
-	try {
-	    selection = Integer.parseInt(raw_selection);
-	    System.out.println("Selection was: " + selection);
-	} catch (Exception e) {
-	    e.printStackTrace();
+	String raw_selection = " ";
+	
+	while (correct_input == false) { 
+	    // which ad to promote
+	    raw_selection = console.readLine("Enter ad's number: ");
+	    try {
+		selection = Integer.parseInt(raw_selection);
+		System.out.println("Selection was: " + selection);
+		if (selection == 0) {
+		    return;
+		}
+		if (selection < rset.getRow()) {
+		    correct_input = true;
+		}
+		else {
+		    System.out.println("Selection was out of scope");
+		}
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
 	
 	try {
@@ -461,7 +468,7 @@ public class proj1 {
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
-
+	
 	// Display offers to choose from
 	String offers = "SELECT * FROM offers";
 	try {
@@ -534,16 +541,30 @@ public class proj1 {
 	   Deletes a specific ad, as selected by user
 	 */
 	String select_title = " ";
-
-	// which ad to delete
-	String raw_selection = console.readLine("Enter ad's number: ");
+	String raw_selection = " ";
 	int selection = 0;
-	try {
-	    selection = Integer.parseInt(raw_selection);
-	    System.out.println("Selection was: " + selection);
-	} catch (Exception e) {
-	    e.printStackTrace();
+	Boolean correct_input = false;
+
+	while (correct_input == false) { 
+	    // which ad to delete
+	    raw_selection = console.readLine("Enter ad's number: ");
+	    try {
+		selection = Integer.parseInt(raw_selection);
+		System.out.println("Selection was: " + selection);
+		if (selection == 0) {
+		    return;
+		}
+		if (selection < rset.getRow()) {
+		    correct_input = true;
+		}
+		else {
+		    System.out.println("Selection was out of scope");
+		}
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
+
 	try {
 	    // find specified ad
 	    rset.absolute(selection);
@@ -620,14 +641,15 @@ public class proj1 {
 		String rs_title = rset.getString("title");
 		Float rs_price = rset.getFloat("price");
 		String rs_pdate = rset.getString("pdate");
-		System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + " " + rs_price + " " + rs_pdate);
+		System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + " " 
+				   + rs_price + " " + rs_pdate);
 		counter++;
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 	try {
-	    while (!rset.isAfterLast()) {
+	    while (rset.isLast() == false && rset.isAfterLast() == false) {
 		// See more ads
 		System.out.println("'0' for back, '1' for more ads: ");
 		String raw_selection = console.readLine("Enter selection (0-1): ");
@@ -643,7 +665,6 @@ public class proj1 {
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
-	    // more ads
 	}
 	return;
     }
@@ -657,19 +678,37 @@ public class proj1 {
 	// which ad to see
 	String raw_selection = console.readLine("Enter ad's number: ");
 	int selection = 0;
+	Boolean correct_input = false;
+	
+	while (correct_input == false) { 
+	    // which ad to promote
+	    try {
+		selection = Integer.parseInt(raw_selection);
+		System.out.println("Selection was: " + selection);
+		if (selection < rset.getRow()) {
+		    correct_input = true;
+		}
+		if (selection == 0) {
+		    return;
+		}
+		else {
+		    System.out.println("Selection was out of scope");
+		}
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+
 	try {
 	    selection = Integer.parseInt(raw_selection);
-	    System.out.println("Selection was: " + selection);
+	    System.out.println("Ad number " + selection + " was deleted");
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 	try {
 	    // find specified ad
 	    rset.absolute(selection);
-	    //	    while(rset.previous() && counter != selection) {
 	    select_title = rset.getString("title");
-	    //counter--;
-	    // }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
@@ -716,7 +755,6 @@ public class proj1 {
 	    try {
 		selection = Integer.parseInt(raw_selection);
 	    } catch (Exception e) {
-		// e.printStackTrace();
 	    }
 	    if (selection < 0 || selection > 2) {
 		System.out.println("Invalid input: '" + raw_selection + "'");
@@ -731,7 +769,8 @@ public class proj1 {
 		while(true){
 		    System.out.println("\nSearch user email: ");
 		    System.out.println("'0' for back, else enter email:");
-		    searchemail = console.readLine("Enter email, '0' for back: ").replaceAll("'", "").replace('"', '\0');
+		    searchemail = console.readLine("Enter email, '0' for back: ").replaceAll
+			("'", "").replace('"', '\0');
 		    if (searchemail.equals("0")){
 			System.out.println("Back...");
 			return;
@@ -774,9 +813,11 @@ public class proj1 {
 					break;
 				    }
 				    // Choose the user with the email at the row specified
-				    // Move the cursor back the difference of selection and userselect
-				    // ie) if there are 3 people rows, and a user select 3, will move row back 0 times
-				    // if the user selects 1, move the row back 3-1 = 2 times
+				    // Move the cursor back the difference of selection and
+				    // userselect
+				    // ie) if there are 3 people rows, and a user select 3,
+				    // will move row back 0 times
+				    // if the user selects 1, move the row back 3-1 = 2x
 				    Integer moveback = selection - userselect;
 				    for(int i = 0; i < moveback; i++){
 					rset.previous();
@@ -784,8 +825,8 @@ public class proj1 {
 				    user_options(rset.getString("email").trim());
 				    return;
 				} catch (Exception e){
-				    //e.printStackTrace();
-				    System.out.println("Invalid input '"+raw_userselect+"'");
+				    System.out.println("Invalid input '" + 
+						       raw_userselect + "'");
 				}				
 			    }
 
@@ -803,7 +844,8 @@ public class proj1 {
 		while(true){
 		    System.out.println("\nSearch user name: ");
 		    System.out.println("'0' for back, else enter name:");
-		    searchname = console.readLine("Enter name, '0' for back: ").replaceAll("'", "").replace('"', '\0');
+		    searchname = console.readLine("Enter name, '0' for back: ").replaceAll
+			("'", "").replace('"', '\0');
 		    if (searchname.equals("0")){
 			System.out.println("Back...");
 			return;
@@ -838,7 +880,9 @@ public class proj1 {
 			    }			    
 			    Integer userselect = 0;
 			    while(userselect < 1 || userselect > (selection - 1)){
-				String raw_userselect = console.readLine("Select user number (1-" + (selection - 1) +", '0' for back): ");				
+				String raw_userselect = console.readLine
+				    ("Select user number (1-" + (selection - 1) + 
+				     ", '0' for back): ");				
 				try{
 				    userselect = Integer.parseInt(raw_userselect);
 				    if(userselect == 0){
@@ -852,7 +896,8 @@ public class proj1 {
 				    return;
 				} catch (Exception e){
 				    //e.printStackTrace();
-				    System.out.println("Invalid input '"+raw_userselect+"'");
+				    System.out.println("Invalid input '"+ raw_userselect 
+						       + "'");
 				}				
 			    }			    
 			    
@@ -862,10 +907,9 @@ public class proj1 {
 		    } catch (SQLException e) {
 			e.printStackTrace();
 		    }
-		    
 		}
-	    }	    
-	}	
+	    }
+	}
     }
 
     public static void user_options(String email){
@@ -874,7 +918,7 @@ public class proj1 {
 	   1) See all the reviews posted about this email
 	   2) Write a review for this email
 	 */
-	System.out.println("You have selected '"+email+"'");
+	System.out.println("You have selected '" + email + "'");
 	Integer choice = null;
 	while(true){
 	    String raw_choice = console.readLine("'0' for back, '1' to list all reviews, '2' to write a review: ");
@@ -927,7 +971,8 @@ public class proj1 {
 	// At this point, rating is valid. Enter text
 	String rtext = null;
 	while (true){
-	    rtext = console.readLine("Enter review text (max 80 char): ").replaceAll("'", "").replace('"', '\0');
+	    rtext = console.readLine("Enter review text (max 80 char): ").
+		replaceAll("'", "").replace('"', '\0');
 	    if(rtext.length()>80){
 		System.out.println("Review too long! (length: '"+rtext.length()+"'");
 	    } else {
@@ -974,8 +1019,8 @@ public class proj1 {
 	 */
 	System.out.println("\nListing reviews for '"+reviewee+"'...");
 	
-	String display_reviews = "SELECT rdate, rating, reviewer, text FROM reviews WHERE " + 
-	    "lower(reviewee) = lower('" + reviewee + "')";
+	String display_reviews = "SELECT rdate, rating, reviewer, text FROM reviews WHERE "
+	    + "lower(reviewee) = lower('" + reviewee + "')";
 	
 	try{
 	    rset = stmt.executeQuery(display_reviews);
@@ -1015,7 +1060,8 @@ public class proj1 {
 	// Select an ad type
 	String adtype = null;
 	while(true){
-	    adtype = console.readLine("'0' for quit, else select an Ad Type (s, w): ").replaceAll("'", "").replace('"', '\0');
+	    adtype = console.readLine("'0' for quit, else select an Ad Type (s, w): ").
+		replaceAll("'", "").replace('"', '\0');
 	    if (adtype.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -1030,7 +1076,8 @@ public class proj1 {
 	// Enter in the title
 	String adtitle = null;
 	while(true){
-	    adtitle = console.readLine("'0' for quit, else enter ad title (max 20 char): ").replaceAll("'", "").replace('"', '\0');
+	    adtitle = console.readLine("'0' for quit, else enter ad title (max 20 char): ").
+		replaceAll("'", "").replace('"', '\0');
 	    if (adtitle.equals("0")){
 		System.out.println("Back...");
 		return;
@@ -1050,7 +1097,8 @@ public class proj1 {
 		return;
 	    }
 	    if (addesc.length() > 40) {
-		System.out.println("Description too long! (length: " + addesc.length() + ")");
+		System.out.println("Description too long! (length: " + addesc.length() 
+				   + ")");
 	    } else {
 		break;
 	    }
@@ -1072,7 +1120,8 @@ public class proj1 {
 	// Enter in price
 	Integer adprice = null;
 	while(true){
-	    String rawadprice = console.readLine("'q' for quit, else enter price: ").replaceAll("'", "").replace('"', '\0');
+	    String rawadprice = console.readLine("'q' for quit, else enter price: ").
+		replaceAll("'", "").replace('"', '\0');
 	    if(rawadprice.equals("q")){
 		System.out.println("Back...");
 		return;
@@ -1094,7 +1143,8 @@ public class proj1 {
 	    Integer catselect = 1;
 	    System.out.println("# | Category   | SuperCategory");
 	    while(rset.next()) {
-		System.out.println(catselect + " | " + rset.getString("CAT") + " | " + rset.getString("SUPERCAT"));
+		System.out.println(catselect + " | " + rset.getString("CAT") + " | " + 
+				   rset.getString("SUPERCAT"));
 		catselect++;
 	    }
 	    Integer userselect = null;
@@ -1117,7 +1167,8 @@ public class proj1 {
 		try {
 		    userselect = Integer.parseInt(rawuserselect);
 		    if (userselect < 1 || userselect > (catselect -1)){
-			System.out.println("Category selection out of range! (value: '" +userselect +")");
+			System.out.println("Category selection out of range! (value: '" 
+					   + userselect +")");
 			continue;
 		    }
 		} catch (Exception e) {
@@ -1179,9 +1230,9 @@ public class proj1 {
 	    e.printStackTrace();
 	    System.out.println("Failed to post ad.");
 	}
-
 	return;
     }
+
     public static String new_category(){
 	/**
 	   This function allows a user to create a new category.
@@ -1197,11 +1248,13 @@ public class proj1 {
 		return null;
 	    }
 	    if (newcat.length() > 10){
-		System.out.println("Category name too long (value: " + newcat.length() + ")");
+		System.out.println("Category name too long (value: " + newcat.length() 
+				   + ")");
 		continue;
 	    }
 	    // check if this value is already a category
-	    String checkcat = "SELECT * from categories WHERE LOWER('CAT') LIKE LOWER('" + newcat + "')";	
+	    String checkcat = "SELECT * from categories WHERE LOWER('CAT') LIKE LOWER('" 
+		+ newcat + "')";	
 	    try {
 		rset = stmt.executeQuery(checkcat);
 		if (rset.next()){

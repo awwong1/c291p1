@@ -1,0 +1,75 @@
+public static void main(String args[])
+       contains: 
+       		 connection to jdbc driver
+		 loop for ujiji options: '0' for logout, '1' for post ad, '2' for 
+		      list own ads,'3' for search ads, '4' for search users
+
+public static String logchoice(): 
+       - This function allows users to login or register as a new user
+       - Display all reviews between last_login and current system time 
+       	       where reviewee = email
+       - Register user screen here, ask for new email and pass
+ALEX TODO:: NOTE: Currently, length is not restricted. Will be cut off in SQL statememnt 
+       execution
+
+public static void logout():
+       -  Logs out of the system, sets current system time to last_login
+
+public static void own_ads():
+       - displays a user's own ads
+       - asks user if they want to delete an ad, or promote it
+
+public static void own_ad_print(ResultSet rset):
+       - prints ads from own_ads() ResultSet in multiples of 5
+       - asks to print more in multiples of 5
+
+public static void ad_promote(ResultSet rset):
+       - promotes an ad, as selected by user
+
+public static void ad_delete(ResultSet rset):
+       - Deletes a specific ad, as selected by user
+
+public static void ad_search():
+       - Finds an ad based on keywords entered
+
+public static void ad_print(ResultSet rset):
+       - prints ads in ad_search() ResultSet in multiples of 5
+       - asks to print more in multiples of 5
+MICHELLE TODO: limit ad selection to those that exist
+
+public static void ad_moredetail(ResultSet rset):
+       - Provides more detail for a specific ad, as selected by user
+
+public static void user_search():
+       - User should be able search by email or search by name
+       - If search by name, returns a result of all users with that name; 
+       - user should be able to select one from the list.
+
+public static void user_options(String email):
+       - This function takes the email given and allows user to choose the following 
+       options:
+	   1) See all the reviews posted about this email
+	   2) Write a review for this email
+
+public static void write_review(String reviewee):
+       - This function takes the class global userstate as the reviewer
+       and writes a review for the reviewee
+       - This function assumes the two emails are valid.
+       - This function will not allow a user to write a review for himself.
+
+
+public static void list_reviews(String reviewee):
+       - This function takes the reviewee and prints all the reviews reviewing the reviewee
+
+
+public static void ad_post():
+       - Posting an ad:
+       	 Select an ad type (S or W):
+	 Enter in the title, price, description, location 
+	 Select a category or create a new category
+	 Have the program generate the aid and poster.
+
+public static String new_category():
+       - This function allows a user to create a new category.
+TODO: specs say users can choose from current categories, nothing about creating new ones
+
