@@ -35,7 +35,6 @@ public static void ad_search():
 public static void ad_print(ResultSet rset):
        - prints ads in ad_search() ResultSet in multiples of 5
        - asks to print more in multiples of 5
-MICHELLE TODO: limit ad selection to those that exist
 
 public static void ad_moredetail(ResultSet rset):
        - Provides more detail for a specific ad, as selected by user
@@ -57,10 +56,8 @@ public static void write_review(String reviewee):
        - This function assumes the two emails are valid.
        - This function will not allow a user to write a review for himself.
 
-
 public static void list_reviews(String reviewee):
        - This function takes the reviewee and prints all the reviews reviewing the reviewee
-
 
 public static void ad_post():
        - Posting an ad:
@@ -71,5 +68,6 @@ public static void ad_post():
 
 public static String new_category():
        - This function allows a user to create a new category.
-TODO: specs say users can choose from current categories, nothing about creating new ones
+ALEX TODO: specs say users can choose from current categories, nothing about creating new ones
+     check forum for more information
 
