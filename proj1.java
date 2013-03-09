@@ -164,7 +164,10 @@ public class proj1 {
 	    while(true) {
 		System.out.println("'0' for back, else enter email:");
 		String raw_email = console.readLine("Enter email: ").replaceAll("'", "").replace('"', '\0');
-		
+		if (raw_email.length() > 20) {
+		    System.out.println("Email too long! (length '" + raw_email.length()+ "')");
+		    continue;
+		}
 		if (raw_email.equals("0")){
 		    System.out.println("Back...");
 		    return "RETRY";
@@ -172,7 +175,7 @@ public class proj1 {
 		char[] raw_pass = console.readPassword("Enter pass: ");
 		String pass = new String(raw_pass).replaceAll("'", "").replace('"', '\0');
 		Arrays.fill(raw_pass, ' ');
-		// Query goes here
+		// Query goes here		
 		String checkUser = "SELECT * FROM users WHERE LOWER(email) = LOWER('" +
 		    raw_email + "') AND pass = '" + pass + "'";
 		try {
@@ -259,28 +262,57 @@ public class proj1 {
 	    System.out.println("'0' for back, else enter new email:");
 
 	    while(true){
-		String raw_email = console.readLine("Enter email (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
-		if(raw_email.equals("0")) {
-		    System.out.println("Back...");
-		    return "RETRY";
+		String raw_email = null;
+		String raw_email2 = null;
+		String pass = null;
+		String pass2 = null;
+		String raw_name = null;
+		while(true){
+		    raw_email = console.readLine("Enter email (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
+		    if(raw_email.equals("0")) {
+			System.out.println("Back...");
+			return "RETRY";
+		    }
+		    if (raw_email.length() > 20) {
+			System.out.println("Email too long! (length '" + raw_email.length()+ "')");
+			continue;
+		    }
+		    raw_email2 = console.readLine("Confirm email: ").trim().replaceAll("'", "").replace('"', '\0');
+		    if(!raw_email.equals(raw_email2)){
+			System.out.println("Emails do not match.");
+			continue;
+		    }
+		    if (raw_email2.length() > 20) {
+			System.out.println("Email too long! (length '" + raw_email2.length()+ "')");
+			continue;
+		    }
+		    break;
 		}
-		String raw_email2 = console.readLine("Confirm email: ").trim().replaceAll("'", "").replace('"', '\0');
-		if(!raw_email.equals(raw_email2)){
-		    System.out.println("Emails do not match.");
-		    continue;
+		while(true){
+		    char[] raw_pass = console.readPassword("Enter password (up to 4 chars): ");
+		    char[] raw_pass2 = console.readPassword("Confirm password: ");
+		    pass = new String(raw_pass).replaceAll("'", "").replace('"', '\0');
+		    pass2 = new String(raw_pass2).replaceAll("'", "").replace('"', '\0');
+		    Arrays.fill(raw_pass, ' ');
+		    Arrays.fill(raw_pass2, ' ');
+		    if (!pass.equals(pass2)){
+			System.out.println("Passwords do not match.");
+			continue;
+		    }
+		    if (pass.length() > 4 || pass2.length() > 4){
+			System.out.println("Password too long, must be up to 4 chars");
+			continue;
+		    }
+		    break;
 		}
-		char[] raw_pass = console.readPassword("Enter password (up to 4 chars): ");
-		char[] raw_pass2 = console.readPassword("Confirm password: ");
-		String pass = new String(raw_pass).replaceAll("'", "").replace('"', '\0');
-		String pass2 = new String(raw_pass2).replaceAll("'", "").replace('"', '\0');
-		Arrays.fill(raw_pass, ' ');
-		Arrays.fill(raw_pass2, ' ');
-		if (!pass.equals(pass2)){
-		    System.out.println("Passwords do not match.");
-		    continue;
+		while(true){
+		    raw_name = console.readLine("Enter name (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
+		    if(raw_name.length() > 20){
+			System.out.println("Name too long! (length'" + raw_name.length() + "')");
+			continue;
+		    }
+		    break;
 		}
-		String raw_name = console.readLine("Enter name (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
-		
 		// Check if the email exists in the users table
 		// If the email exists make the user enter information again
 		String check_email = "SELECT email FROM users WHERE LOWER(email) = LOWER('" +

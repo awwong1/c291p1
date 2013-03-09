@@ -11,6 +11,7 @@ public static String logchoice():
        - Register user screen here, ask for new email and pass
 ALEX TODO:: NOTE: Currently, length is not restricted. Will be cut off in SQL statememnt 
        execution
+       Alex: This has been fixed as on March 8, 2013
 
 public static void logout():
        -  Logs out of the system, sets current system time to last_login
@@ -18,19 +19,47 @@ public static void logout():
 public static void own_ads():
        - displays a user's own ads
        - asks user if they want to delete an ad, or promote it
+MICHELLE TODO:
+       - If user has no ads, it will offer the choice to select 0 for back or 1 for more ads.
+       	 Pressing 1 continuously means you have to press 0 that many times to go back.
+	 Also, on the last case, it gives the user the option to delete an ad or promote an ad
+	 even though there aren't any ads to delete or promote
+       - When given '0' for back '1' for more ads, user can enter values greater than 1
+       - When entering characters, conversion throws error and breaks rather than prompt to try again
 
 public static void own_ad_print(ResultSet rset):
        - prints ads from own_ads() ResultSet in multiples of 5
        - asks to print more in multiples of 5
+MICHELLE TODO:
+       - Breaks when user has no ads to print
+       - Perhaps display column headers for each column?
 
 public static void ad_promote(ResultSet rset):
        - promotes an ad, as selected by user
+MICHELLE TODO:
+       - promoting an add throws "Selection was out of scope" error
 
 public static void ad_delete(ResultSet rset):
        - Deletes a specific ad, as selected by user
+MICHELLE TODO:
+       - deleting an add throws "Selection was out of scope" error
 
 public static void ad_search():
        - Finds an ad based on keywords entered
+MICHELLE TODO:
+       - Pressing '0' does not go back. (Did you intend for this?)
+       - When a garbage keyword is entered, and an empty result set is returned, 
+         a user will still be allowed to press '1' for more ads.
+	 However, a user must press '0' to go back as many times as they pressed '1'
+         On the last iteration, it allows the user to select '1' for more ad detail, despite no ads
+       - Using a keyword '0', ads that don't have '0' in title or description appear
+       - When selecting an add, after pressing '1' for more detail, and pressing an ad number
+         threw an "Selection was out of scope" error, then said "Ad number 3 was deleted"
+	 Then it printed out what seemed to be an ad, but it wasn't my selected ad 3 (see attached screenshot)
+       - Entering a space ' ' character causes ArrayIndexOutOfBoundsException
+       - When choosing selection, user can enter values out of range
+         This occasionally returns the user back to the main menu, occasionally asks the user to select again
+	 May also move to the ad_moredetail function (?)
 
 public static void ad_print(ResultSet rset):
        - prints ads in ad_search() ResultSet in multiples of 5
@@ -70,4 +99,4 @@ public static String new_category():
        - This function allows a user to create a new category.
 ALEX TODO: specs say users can choose from current categories, nothing about creating new ones
      check forum for more information
-
+     Alex: It's an additional feature, does not detract from the assignment specs.
