@@ -94,7 +94,7 @@ public class proj1 {
 			}
 			if (selection < 0 || selection > 4) {
 			    System.out.println("Invalid input '" + raw_selection + "'");
-       		    continue;
+			    continue;
 			}
 			if (selection == 0) {
 			    // Logout user
@@ -257,7 +257,8 @@ public class proj1 {
 
 	else if (login_input == 2) {
 	    // Register user screen here, ask for new email and pass
-	    // NOTE: Currently, length is not restricted. Will be cut off in SQL statememnt execution
+	    // NOTE: Currently, length is not restricted. Will be cut off in SQL 
+	    // statememnt execution
 	    System.out.println("\n2) Register New User");
 	    System.out.println("'0' for back, else enter new email:");
 
@@ -268,22 +269,26 @@ public class proj1 {
 		String pass2 = null;
 		String raw_name = null;
 		while(true){
-		    raw_email = console.readLine("Enter email (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
+		    raw_email = console.readLine("Enter email (up to 20 chars): ").trim().
+			replaceAll("'", "").replace('"', '\0');
 		    if(raw_email.equals("0")) {
 			System.out.println("Back...");
 			return "RETRY";
 		    }
 		    if (raw_email.length() > 20) {
-			System.out.println("Email too long! (length '" + raw_email.length()+ "')");
+			System.out.println("Email too long! (length '" + 
+					   raw_email.length()+ "')");
 			continue;
 		    }
-		    raw_email2 = console.readLine("Confirm email: ").trim().replaceAll("'", "").replace('"', '\0');
+		    raw_email2 = console.readLine("Confirm email: ").trim().
+			replaceAll("'", "").replace('"', '\0');
 		    if(!raw_email.equals(raw_email2)){
 			System.out.println("Emails do not match.");
 			continue;
 		    }
 		    if (raw_email2.length() > 20) {
-			System.out.println("Email too long! (length '" + raw_email2.length()+ "')");
+			System.out.println("Email too long! (length '" + raw_email2.
+					   length()+ "')");
 			continue;
 		    }
 		    break;
@@ -306,19 +311,21 @@ public class proj1 {
 		    break;
 		}
 		while(true){
-		    raw_name = console.readLine("Enter name (up to 20 chars): ").trim().replaceAll("'", "").replace('"', '\0');
+		    raw_name = console.readLine("Enter name (up to 20 chars): ").trim().
+			replaceAll("'", "").replace('"', '\0');
 		    if(raw_name.length() > 20){
-			System.out.println("Name too long! (length'" + raw_name.length() + "')");
+			System.out.println("Name too long! (length'" + raw_name.length() 
+					   + "')");
 			continue;
 		    }
 		    break;
 		}
 		// Check if the email exists in the users table
 		// If the email exists make the user enter information again
-		String check_email = "SELECT email FROM users WHERE LOWER(email) = LOWER('" +
-		    raw_email + "')";
-		String create_acc = "INSERT INTO users (email, name, pass) VALUES ('" + raw_email + "', '" 
-		    + raw_name + "', '" + pass + "')";
+		String check_email = "SELECT email FROM users WHERE LOWER(email) = LOWER('"
+		    + raw_email + "')";
+		String create_acc = "INSERT INTO users (email, name, pass) VALUES ('" 
+		    + raw_email + "', '" + raw_name + "', '" + pass + "')";
 		try {
 
 		    rset = stmt.executeQuery(check_email);
@@ -374,42 +381,57 @@ public class proj1 {
     }
 
     public static void own_ads() {
+	Boolean correct_input = false;
+	String raw_selection = " ";
+	int selection = 255;
+
 	String own_ad_search = "SELECT a.aid, a.atype, a.title, a.price, a.pdate, (po.ndays - po.days_diff) AS days_left FROM ads a LEFT OUTER JOIN (SELECT p.aid, to_number(sysdate - p.start_date) AS days_diff, o.ndays FROM purchases p, offers o WHERE p.ono = o.ono) po ON po.aid = a.aid WHERE a.poster = '" + userstate + "' ORDER BY pdate DESC";
 
 	try {
 	    // execute query
 	    rset = stmt.executeQuery(own_ad_search);
+	    // if ResultSet is empty, return
+	    if (rset.first() == false) {
+		return;
+	    }
+	    rset.beforeFirst();
 	    own_ad_print(rset);
 	    
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 
-	System.out.println("'0' for back, '1' to delete an ad, '2' to promote an ad: ");
-	String raw_selection = console.readLine("Enter selection (0-2): ");
-	int selection = 255;
-
-	try{
-	    selection = Integer.valueOf(raw_selection);
-	} catch (Exception e) {
-	    e.printStackTrace();
+	while (correct_input == false) {
+	    System.out.println("'0' for back, '1' to delete an ad, '2' to promote an ad: ");
+	    raw_selection = console.readLine("Enter selection (0-2): ");
+	    
+	    try{
+		selection = Integer.valueOf(raw_selection);
+	    } catch (Exception e) {
+		//e.printStackTrace();
+	    }
+	    // check valid input
+	    if (selection < 0 || selection > 2) {
+		System.out.println("Invalid input '" + raw_selection + "'");
+	    }
+	    // delete ad
+	    if (selection == 1) {
+		ad_delete(rset);
+		correct_input = true;
+	    }
+	    // promote ad
+	    if (selection == 2) {
+		ad_promote(rset);
+		correct_input = true;
+	    }
+	    // return
+	    if (selection == 0) {
+		correct_input = true;
+		return;
+	    }
 	}
-
-	// specific ad
-	if (selection == 1) {
-	    ad_delete(rset);
-	}
-
-	if (selection == 2) {
-	    ad_promote(rset);
-	}
-	// break
-        else {
-	    return;
-	}
-
     }
-
+    
     public static void own_ad_print(ResultSet rset) {
 	/** prints ads in rset in multiples of 5
         asks to print more in multiples of 5
@@ -417,6 +439,12 @@ public class proj1 {
 	*/
 	int ad_num = 1;
 	int counter = 0;
+	int selection = 255;
+	String raw_selection = " ";
+	Boolean correct_input = false;
+	
+	// print column headers
+	System.out.println("Ad num|Ad type |Title                  |Price  |Date              | Days left on promotion");
 
 	try {
 	    // print query result
@@ -429,37 +457,50 @@ public class proj1 {
 		
 		// check if offer is still valid
       		if (days_left > 0) {
-		    System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title +
-				       " " + rs_price + " " + rs_pdate + " " + days_left);
+		    System.out.println(rset.getRow() + ": \t" + rs_atype + "\t" + rs_title +
+				       "\t" + rs_price + "\t" + rs_pdate + "\t" 
+				       + days_left);
 		}
 		else {
-		    System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + 
-				       " " + rs_price + " " + rs_pdate);
-		    }
+		    System.out.println(rset.getRow() + ": \t" + rs_atype + "\t" + rs_title + 
+				       "\t" + rs_price + "\t" + rs_pdate);
+		}
 		counter++;
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
+	
 	try {
-	    while (rset.isLast() == false && rset.isAfterLast() == false) {
+	    while (rset.isLast() == false && rset.isAfterLast() == false 
+		   && correct_input == false) {
 		// See more ads
 		System.out.println("'0' for back, '1' for more ads: ");
-		String raw_selection = console.readLine("Enter selection (0-1): ");
-		int selection = 255;
-		selection = Integer.valueOf(raw_selection);
-
+		raw_selection = console.readLine("Enter selection (0-1): ");
+		try {
+		    selection = Integer.valueOf(raw_selection);
+		} catch (Exception e) {
+		}
+		
+		// valid input check
+		if (selection < 0 || selection > 1) {
+		    System.out.println("Invalid input '" + raw_selection + "'");
+		}
+		
+		// print more ads
 		if (selection == 1) {
 		    own_ad_print(rset);
+		    correct_input = true;
 		}
-		else {
+		
+		if (selection == 0) {
+		    correct_input = true;
 		    return;
 		}
-	    }
+	    } 
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    //e.printStackTrace();
 	}
-	return;
     }
     
     public static void ad_promote(ResultSet rset) {
@@ -472,23 +513,32 @@ public class proj1 {
 	int selection = 0;
 	String raw_selection = " ";
 	
+	try {
+	    // move cursor to last position of rset
+	    rset.last();
+	} catch (Exception e) {}
+
 	while (correct_input == false) { 
 	    // which ad to promote
 	    raw_selection = console.readLine("Enter ad's number: ");
 	    try {
 		selection = Integer.parseInt(raw_selection);
 		System.out.println("Selection was: " + selection);
+		// return
 		if (selection == 0) {
+		    correct_input = true;
 		    return;
 		}
-		if (selection < rset.getRow()) {
+		// input is valid, continue
+		if (selection <= rset.getRow()) {
 		    correct_input = true;
 		}
+
 		else {
 		    System.out.println("Selection was out of scope");
 		}
 	    } catch (Exception e) {
-		e.printStackTrace();
+		// e.printStackTrace();
 	    }
 	}
 	
@@ -519,17 +569,36 @@ public class proj1 {
 		System.out.println(rset.getRow() + ": " + rs_ono + " " + rs_ndays + " " 
 				   + rs_price);
 	    }
+	    // put cursor at last row
+	    rset.last();
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 
 	// which promotion
-	raw_selection = console.readLine("Enter number of promotion to add: ");
-	try {
-	    selection = Integer.parseInt(raw_selection);
-	    System.out.println("Selection was: " + selection);
-	} catch (Exception e) {
-	    e.printStackTrace();
+	correct_input = false;
+	while (correct_input == false) {
+	    raw_selection = console.readLine("Enter number of promotion to add: ");
+	    try {
+		selection = Integer.parseInt(raw_selection);
+		System.out.println("Selection was: " + selection);
+		// return
+		if (selection == 0) {
+		    correct_input = true;
+		    return;
+		}
+		// input is valid, continue
+		if (selection <= rset.getRow()) {
+		    correct_input = true;
+		}
+		
+		else {
+		    System.out.println("Selection was out of scope");
+		}
+
+	    } catch (Exception e) {
+		// e.printStackTrace();
+	    }
 	}
 	
 	// Find the new pid
@@ -557,8 +626,8 @@ public class proj1 {
 	    e.printStackTrace();
 	}
 
-	String promote = "INSERT INTO purchases VALUES('" + newpid + "', CURRENT_TIMESTAMP, '" + select_aid + "', " + selection + ")";
-	System.out.println(promote);
+	String promote = "INSERT INTO purchases VALUES('" + newpid 
+	    + "', CURRENT_TIMESTAMP, '" + select_aid + "', " + selection + ")";
 
 	try {
 	    // execute query
@@ -584,6 +653,7 @@ public class proj1 {
 		selection = Integer.parseInt(raw_selection);
 		System.out.println("Selection was: " + selection);
 		if (selection == 0) {
+		    correct_input = true;
 		    return;
 		}
 		if (selection < rset.getRow()) {
@@ -593,7 +663,7 @@ public class proj1 {
 		    System.out.println("Selection was out of scope");
 		}
 	    } catch (Exception e) {
-		e.printStackTrace();
+		// e.printStackTrace();
 	    }
 	}
 
@@ -616,45 +686,64 @@ public class proj1 {
     
     public static void ad_search(){
 	String delims = " ";
+	int selection = 255;
+	String raw_selection = " ";
+	Boolean correct_input = false;
 	
 	// split keywords input into an array of keywords
 	String keywords_str = console.readLine("Enter keywords: ");
+	if (keywords_str == " ") {
+	    System.out.println("Invalid input");
+	    return;
+	}
 	String[] keywords = keywords_str.split(delims);
 	
-	String key_search = "SELECT atype, title, price, pdate FROM ads WHERE title LIKE '%" + keywords[0] + "%' OR descr LIKE '%" + keywords[0] + "%'";
+	String key_search = "SELECT atype, title, price, pdate FROM ads WHERE title LIKE '%" 
+	    + keywords[0] + "%' OR descr LIKE '%" + keywords[0] + "%'";
+
 	// add keywords to the SQL query
 	for (int i = 1; i < keywords.length; i++) {
-	    key_search = key_search.concat(" OR title LIKE '%" + keywords[i] + "%' OR descr LIKE '%" + keywords[i] + "%'");
+	    key_search = key_search.concat(" OR title LIKE '%" + keywords[i] 
+					   + "%' OR descr LIKE '%" + keywords[i] + "%'");
 	}
+
 	// add order by clause to SQL query
-	
 	key_search = key_search.concat(" ORDER BY pdate DESC");
 	
 	try {
 	    // execute query
 	    rset = stmt.executeQuery(key_search);
+	    // if rset is empty, return
+	    if (rset.first() == false) {
+		return;
+	    }
+	    rset.beforeFirst();
 	    ad_print(rset);
-	    
+
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 
-	System.out.println("'0' for back, '1' for more ad detail: ");
-	String raw_selection = console.readLine("Enter selection (0-1): ");
-	int selection = 255;
-	try{
-	    selection = Integer.valueOf(raw_selection);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-
-	// specific ad
-	if (selection == 1) {
-	    ad_moredetail(rset);
-	}
-	// break
-        else {
-	    return;
+	while (correct_input == false) {
+	    System.out.println("'0' for back, '1' for more ad detail: ");
+	    raw_selection = console.readLine("Enter selection (0-1): ");
+	    try{
+		selection = Integer.valueOf(raw_selection);
+		// return
+		if (selection == 0) {
+		    correct_input = true;
+		    return;
+		}
+		// specific ad
+		if (selection == 1) {
+		    ad_moredetail(rset);
+		}
+		else {
+		    System.out.println("Selection was out of scope");
+		}
+	    } catch (Exception e) {
+		// e.printStackTrace();
+	    }
 	}
     }
 
@@ -665,6 +754,12 @@ public class proj1 {
 	*/
 	int ad_num = 1;
 	int counter = 0;
+	int selection = 255;
+	String raw_selection = " ";
+	Boolean correct_input = false;
+	
+	// print column headers
+	System.out.println("Ad num|Ad type |Title                  |Price  |Date              | Days left on promotion");
 
 	try {
 	    // print query result
@@ -673,32 +768,44 @@ public class proj1 {
 		String rs_title = rset.getString("title");
 		Float rs_price = rset.getFloat("price");
 		String rs_pdate = rset.getString("pdate");
-		System.out.println(rset.getRow() + ": " + rs_atype + " " + rs_title + " " 
-				   + rs_price + " " + rs_pdate);
+		System.out.println(rset.getRow() + ": \t" + rs_atype + "\t" + rs_title + 
+				       "\t" + rs_price + "\t" + rs_pdate);
 		counter++;
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
+	
 	try {
-	    while (rset.isLast() == false && rset.isAfterLast() == false) {
+	    while (rset.isLast() == false && rset.isAfterLast() == false 
+		   && correct_input == false) {
 		// See more ads
 		System.out.println("'0' for back, '1' for more ads: ");
-		String raw_selection = console.readLine("Enter selection (0-1): ");
-		int selection = 255;
-		selection = Integer.valueOf(raw_selection);
-
+		raw_selection = console.readLine("Enter selection (0-1): ");
+		try {
+		    selection = Integer.valueOf(raw_selection);
+		} catch (Exception e) {
+		}
+		
+		// valid input check
+		if (selection < 0 || selection > 1) {
+		    System.out.println("Invalid input '" + raw_selection + "'");
+		}
+		
+		// print more ads
 		if (selection == 1) {
 		    ad_print(rset);
+		    correct_input = true;
 		}
-		else {
+		
+		if (selection == 0) {
+		    correct_input = true;
 		    return;
 		}
-	    }
+	    } 
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    //e.printStackTrace();
 	}
-	return;
     }
     
     public static void ad_moredetail(ResultSet rset) {
@@ -707,36 +814,33 @@ public class proj1 {
 	 */
 	String select_title = " ";
 	String rs_poster = " ";
-	// which ad to see
-	String raw_selection = console.readLine("Enter ad's number: ");
+	String raw_selection = " ";
 	int selection = 0;
 	Boolean correct_input = false;
 	
+	//move rset cursor to last entry
+	try {
+	    rset.last();
+	} catch (Exception e) {}
 	while (correct_input == false) { 
-	    // which ad to promote
 	    try {
+		raw_selection = console.readLine("Enter ad's number: ");
 		selection = Integer.parseInt(raw_selection);
 		System.out.println("Selection was: " + selection);
-		if (selection < rset.getRow()) {
-		    correct_input = true;
-		}
 		if (selection == 0) {
 		    return;
+		}
+		if (selection <= rset.getRow()) {
+		    correct_input = true;
 		}
 		else {
 		    System.out.println("Selection was out of scope");
 		}
 	    } catch (Exception e) {
-		e.printStackTrace();
+		// e.printStackTrace();
 	    }
 	}
 
-	try {
-	    selection = Integer.parseInt(raw_selection);
-	    System.out.println("Ad number " + selection + " was deleted");
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
 	try {
 	    // find specified ad
 	    rset.absolute(selection);
@@ -754,7 +858,8 @@ public class proj1 {
 		String rs_location = rset.getString("location");
 		String rs_cat = rset.getString("cat");
 		rs_poster = rset.getString("poster");
-		System.out.println(rs_descr + " " + rs_location + " " + rs_cat + " " + rs_poster);
+		System.out.print(rs_descr + " " + rs_location + " " + rs_cat + " " 
+				   + rs_poster);
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
@@ -766,7 +871,12 @@ public class proj1 {
 	    rset = stmt.executeQuery(poster_reviews);
 	    while(rset.next()){
 		String rs_avg_rating = rset.getString("avg_rating");
-		System.out.print(rs_avg_rating);
+		if (rs_avg_rating != null) {
+		    System.out.println(rs_avg_rating);
+		}
+		else {
+		    System.out.println();
+		}
 	    }
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());

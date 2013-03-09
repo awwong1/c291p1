@@ -20,44 +20,47 @@ public static void own_ads():
        - displays a user's own ads
        - asks user if they want to delete an ad, or promote it
 MICHELLE TODO:
-       - If user has no ads, it will offer the choice to select 0 for back or 1 for more ads.
-       	 Pressing 1 continuously means you have to press 0 that many times to go back.
-	 Also, on the last case, it gives the user the option to delete an ad or promote an ad
-	 even though there aren't any ads to delete or promote
-       - When given '0' for back '1' for more ads, user can enter values greater than 1
-       - When entering characters, conversion throws error and breaks rather than prompt to try again
+       - Fixed! If user has no ads, it will offer the choice to select 0 for back or 1 
+       	 for more ads.
+       - Fixed! Pressing 1 continuously means you have to press 0 that many times to go back
+       - Fixed! Also, on the last case, it gives the user the option to delete an ad or promote an ad even though there aren't any ads to delete or promote
+       - Fixed! When given '0' for back '1' for more ads, user can enter values greater than 1
+       - Fixed! When entering characters, conversion throws error and breaks rather than prompt to try again
 
 public static void own_ad_print(ResultSet rset):
        - prints ads from own_ads() ResultSet in multiples of 5
        - asks to print more in multiples of 5
 MICHELLE TODO:
-       - Breaks when user has no ads to print
-       - Perhaps display column headers for each column?
+       - Fixed! Breaks when user has no ads to print
+       - Fixed! Perhaps display column headers for each column?
 
 public static void ad_promote(ResultSet rset):
        - promotes an ad, as selected by user
 MICHELLE TODO:
-       - promoting an add throws "Selection was out of scope" error
+       - Fixed! promoting an add throws "Selection was out of scope" error
 
 public static void ad_delete(ResultSet rset):
        - Deletes a specific ad, as selected by user
 MICHELLE TODO:
-       - deleting an add throws "Selection was out of scope" error
+       - Fixed! deleting an add throws "Selection was out of scope" error
 
 public static void ad_search():
        - Finds an ad based on keywords entered
 MICHELLE TODO:
-       - Pressing '0' does not go back. (Did you intend for this?)
-       - When a garbage keyword is entered, and an empty result set is returned, 
+       - Pressing '0' does not go back. (Did you intend for this?) Yes.  Just enter a 
+       	 keyword and then go back afterwards
+       - Fixed! When a garbage keyword is entered, and an empty result set is returned, 
          a user will still be allowed to press '1' for more ads.
-	 However, a user must press '0' to go back as many times as they pressed '1'
+	 Fixed! However, a user must press '0' to go back as many times as they pressed '1'
          On the last iteration, it allows the user to select '1' for more ad detail, despite no ads
        - Using a keyword '0', ads that don't have '0' in title or description appear
-       - When selecting an add, after pressing '1' for more detail, and pressing an ad number
+       	       - Not true, 0 is in the description or the title
+       - Fixed! When selecting an add, after pressing '1' for more detail, and pressing an ad number
          threw an "Selection was out of scope" error, then said "Ad number 3 was deleted"
 	 Then it printed out what seemed to be an ad, but it wasn't my selected ad 3 (see attached screenshot)
-       - Entering a space ' ' character causes ArrayIndexOutOfBoundsException
-       - When choosing selection, user can enter values out of range
+       - Don't know how to fix this...
+       	       Entering a space ' ' character causes ArrayIndexOutOfBoundsException
+       - Fixed! When choosing selection, user can enter values out of range
          This occasionally returns the user back to the main menu, occasionally asks the user to select again
 	 May also move to the ad_moredetail function (?)
 
