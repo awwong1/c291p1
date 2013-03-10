@@ -14,7 +14,7 @@ create table categories (
 create table users (
   email		char(20),
   name		char(20),
-  pass		char(4),
+  pwd		char(4),
   last_login	date,
   primary key (email)
 );
