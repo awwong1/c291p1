@@ -1279,7 +1279,7 @@ public class proj1 {
 		adprice = Integer.parseInt(rawadprice);
 		break;
 	    } catch (Exception e) {
-		e.printStackTrace();
+		// e.printStackTrace();
 		System.out.println("Invalid input '" + rawadprice + "'" );
 	    }
 	}
