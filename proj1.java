@@ -177,7 +177,7 @@ public class proj1 {
 		Arrays.fill(raw_pass, ' ');
 		// Query goes here		
 		String checkUser = "SELECT * FROM users WHERE LOWER(email) = LOWER('" +
-		    raw_email + "') AND pass = '" + pass + "'";
+		    raw_email + "') AND pwd = '" + pass + "'";
 		try {
 		    rset = stmt.executeQuery(checkUser);
 		    while(rset.next()){
@@ -324,7 +324,7 @@ public class proj1 {
 		// If the email exists make the user enter information again
 		String check_email = "SELECT email FROM users WHERE LOWER(email) = LOWER('"
 		    + raw_email + "')";
-		String create_acc = "INSERT INTO users (email, name, pass) VALUES ('" 
+		String create_acc = "INSERT INTO users (email, name, pwd) VALUES ('" 
 		    + raw_email + "', '" + raw_name + "', '" + pass + "')";
 		try {
 
@@ -340,7 +340,7 @@ public class proj1 {
 
 			// Verify the account
 			String checkUser = "SELECT * FROM users WHERE LOWER(email) = LOWER('" +
-			    raw_email + "') AND pass = '" + pass + "'";
+			    raw_email + "') AND pwd = '" + pass + "'";
 			rset = stmt.executeQuery(checkUser);
 			rset.next();
 			String email = rset.getString("email").replaceAll("\\s","");
