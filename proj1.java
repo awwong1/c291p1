@@ -924,9 +924,11 @@ public class proj1 {
 		    }
 		    // Search for a user with the specified email
 		    // If email exists, return name, email, number of ads, average rating
-		    String searchemailquery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
-			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) FULL JOIN reviews ON (users.email = reviews.reviewee) " + 
-			"WHERE lower(users.email) LIKE lower('%" + searchemail + "%')" + 
+		    String searchemailquery = "SELECT users.name, users.email, " + 
+			"COUNT(DISTINCT ads.aid) , AVG(reviews.rating) " +
+			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) RIGHT JOIN reviews ON (reviews.reviewee = users.email) " + 
+			"WHERE lower(users.email) LIKE lower('%" + searchemail + "%') AND " + 
+			"lower(ads.poster) LIKE lower('%" + searchemail + "%') " + 
 			"GROUP BY users.name, users.email";
 		    
 		    try {
@@ -940,15 +942,15 @@ public class proj1 {
 				if(tselection.length() == 1) {
 				    tselection = tselection+" ";
 				}
-				String tads = String.valueOf(rset.getInt("ads"));
+				String tads = String.valueOf(rset.getInt(3));
 				if(tads.length() == 1) {
 				    tads = tads+" ";
 				}
 				System.out.println(tselection + " | " + 
-						   rset.getString("name") + " | " +
-						   rset.getString("email")+ " | " +
+						   rset.getString(1) + " | " +
+						   rset.getString(2)+ " | " +
 						   tads + "   | " +
-						   rset.getFloat("rating"));
+						   rset.getFloat(4));
 				selection++;
 			    }
 			    Integer userselect = 0;
@@ -998,7 +1000,7 @@ public class proj1 {
 			return;
 		    }
 		    // Query begins here
-		    String searchnamequery = "SELECT users.name AS name, users.email AS email, COUNT(ads.poster) AS ads, AVG(reviews.rating) AS rating " +
+		    String searchnamequery = "SELECT users.name AS name, users.email AS email, COUNT(DISTINCT ads.aid) AS ads, AVG(reviews.rating) AS rating " +
 			"FROM (users FULL JOIN ads ON (users.email = ads.poster)) FULL JOIN reviews ON (users.email = reviews.reviewee) " + 
 			"WHERE lower(users.name) LIKE lower('%" + searchname + "%')" + 
 			"GROUP BY users.name, users.email";
