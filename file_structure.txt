@@ -9,9 +9,6 @@ public static String logchoice():
        - Display all reviews between last_login and current system time 
        	       where reviewee = email
        - Register user screen here, ask for new email and pass
-ALEX TODO:: NOTE: Currently, length is not restricted. Will be cut off in SQL statememnt 
-       execution
-       Alex: This has been fixed as on March 8, 2013
 
 public static void logout():
        -  Logs out of the system, sets current system time to last_login
@@ -19,50 +16,19 @@ public static void logout():
 public static void own_ads():
        - displays a user's own ads
        - asks user if they want to delete an ad, or promote it
-MICHELLE TODO:
-       - Fixed! If user has no ads, it will offer the choice to select 0 for back or 1 
-       	 for more ads.
-       - Fixed! Pressing 1 continuously means you have to press 0 that many times to go back
-       - Fixed! Also, on the last case, it gives the user the option to delete an ad or promote an ad even though there aren't any ads to delete or promote
-       - Fixed! When given '0' for back '1' for more ads, user can enter values greater than 1
-       - Fixed! When entering characters, conversion throws error and breaks rather than prompt to try again
 
 public static void own_ad_print(ResultSet rset):
        - prints ads from own_ads() ResultSet in multiples of 5
        - asks to print more in multiples of 5
-MICHELLE TODO:
-       - Fixed! Breaks when user has no ads to print
-       - Fixed! Perhaps display column headers for each column?
 
 public static void ad_promote(ResultSet rset):
        - promotes an ad, as selected by user
-MICHELLE TODO:
-       - Fixed! promoting an add throws "Selection was out of scope" error
 
 public static void ad_delete(ResultSet rset):
        - Deletes a specific ad, as selected by user
-MICHELLE TODO:
-       - Fixed! deleting an add throws "Selection was out of scope" error
 
 public static void ad_search():
        - Finds an ad based on keywords entered
-MICHELLE TODO:
-       - Pressing '0' does not go back. (Did you intend for this?) Yes.  Just enter a 
-       	 keyword and then go back afterwards
-       - Fixed! When a garbage keyword is entered, and an empty result set is returned, 
-         a user will still be allowed to press '1' for more ads.
-	 Fixed! However, a user must press '0' to go back as many times as they pressed '1'
-         On the last iteration, it allows the user to select '1' for more ad detail, despite no ads
-       - Using a keyword '0', ads that don't have '0' in title or description appear
-       	       - Not true, 0 is in the description or the title
-       - Fixed! When selecting an add, after pressing '1' for more detail, and pressing an ad number
-         threw an "Selection was out of scope" error, then said "Ad number 3 was deleted"
-	 Then it printed out what seemed to be an ad, but it wasn't my selected ad 3 (see attached screenshot)
-       - Don't know how to fix this...
-       	       Entering a space ' ' character causes ArrayIndexOutOfBoundsException
-       - Fixed! When choosing selection, user can enter values out of range
-         This occasionally returns the user back to the main menu, occasionally asks the user to select again
-	 May also move to the ad_moredetail function (?)
 
 public static void ad_print(ResultSet rset):
        - prints ads in ad_search() ResultSet in multiples of 5
@@ -86,7 +52,7 @@ public static void write_review(String reviewee):
        - This function takes the class global userstate as the reviewer
        and writes a review for the reviewee
        - This function assumes the two emails are valid.
-       - This function will not allow a user to write a review for himself.
+       - This function will not allow a user to write a review for himself
 
 public static void list_reviews(String reviewee):
        - This function takes the reviewee and prints all the reviews reviewing the reviewee
@@ -96,10 +62,7 @@ public static void ad_post():
        	 Select an ad type (S or W):
 	 Enter in the title, price, description, location 
 	 Select a category or create a new category
-	 Have the program generate the aid and poster.
+	 Have the program generate the aid and poster
 
 public static String new_category():
-       - This function allows a user to create a new category.
-ALEX TODO: specs say users can choose from current categories, nothing about creating new ones
-     check forum for more information
-     Alex: It's an additional feature, does not detract from the assignment specs.
+       - This function allows a user to create a new category
