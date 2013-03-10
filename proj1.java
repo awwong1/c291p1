@@ -641,11 +641,15 @@ public class proj1 {
 	/**
 	   Deletes a specific ad, as selected by user
 	 */
-	String select_title = " ";
+	String select_aid = " ";
 	String raw_selection = " ";
 	int selection = 0;
 	Boolean correct_input = false;
 
+        // move cursor to last element
+	try {
+	    rset.last();
+	} catch (Exception e) {}
 	while (correct_input == false) { 
 	    // which ad to delete
 	    raw_selection = console.readLine("Enter ad's number: ");
@@ -656,7 +660,7 @@ public class proj1 {
 		    correct_input = true;
 		    return;
 		}
-		if (selection < rset.getRow()) {
+		if (selection <= rset.getRow()) {
 		    correct_input = true;
 		}
 		else {
@@ -670,15 +674,16 @@ public class proj1 {
 	try {
 	    // find specified ad
 	    rset.absolute(selection);
-	    select_title = rset.getString("title");
+	    select_aid = rset.getString("aid");
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
-
-	String delete_stmt = "DELETE FROM ads WHERE title = '" + select_title + "'";
+	String delete_purchases = "DELETE FROM purchases WHERE aid = '" + select_aid + "'";
+	String delete_ads = "DELETE FROM ads WHERE aid = '" + select_aid + "'";
 	try {
 	    // execute query
-	    stmt.executeUpdate(delete_stmt);
+	    stmt.executeUpdate(delete_purchases);
+	    stmt.executeUpdate(delete_ads);
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	} 
