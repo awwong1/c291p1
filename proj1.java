@@ -11,15 +11,6 @@
        offers(ono, ndays, price)
        ads(aid, atype, title, price, descr, location, pdate, poster, cat)
        purchases(pur_id, start_date, aid, ono)
-   
-   Todo:
-       - Enforce character limit on user registration
-       - Implement Functionalities
-
-   Done:
-       - Login/Registration
-       - Display reviews between logout and currenttime after login
-       - Logout
 */
 
 
@@ -551,6 +542,20 @@ public class proj1 {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 	
+	// check to see if ad is already on promotion
+	String promo_check = "SELECT * FROM purchases WHERE aid = '" + select_aid + "'";
+	try {
+	    rset = stmt.executeQuery(promo_check);
+	} catch (SQLException ex) {
+	    System.err.println("SQLException:" + ex.getMessage());
+	}
+	try {
+	    if (rset.getRow() == 0) {
+		System.out.println("This ad is already on promotion");
+		return;
+	    }
+	} catch (Exception e) {}
+
 	// Display offers to choose from
 	String offers = "SELECT * FROM offers";
 	try {
@@ -697,19 +702,20 @@ public class proj1 {
 	
 	// split keywords input into an array of keywords
 	String keywords_str = console.readLine("Enter keywords: ");
-	if (keywords_str == " ") {
+	
+	if (keywords_str.contentEquals(" ") == true) {
 	    System.out.println("Invalid input");
 	    return;
 	}
-	String[] keywords = keywords_str.split(delims);
+	String[] keywords = keywords_str.trim().split(delims);
 	
-	String key_search = "SELECT atype, title, price, pdate FROM ads WHERE title LIKE '%" 
-	    + keywords[0] + "%' OR descr LIKE '%" + keywords[0] + "%'";
+	String key_search = "SELECT atype, title, price, pdate FROM ads WHERE LOWER(title) LIKE '%" 
+	    + keywords[0].toLowerCase() + "%' OR LOWER(descr) LIKE '%" + keywords[0].toLowerCase() + "%'";
 
 	// add keywords to the SQL query
 	for (int i = 1; i < keywords.length; i++) {
-	    key_search = key_search.concat(" OR title LIKE '%" + keywords[i] 
-					   + "%' OR descr LIKE '%" + keywords[i] + "%'");
+	    key_search = key_search.concat(" OR LOWER(title) LIKE '%" + keywords[i].toLowerCase() 
+					   + "%' OR LOWER(descr) LIKE '%" + keywords[i].toLowerCase() + "%'");
 	}
 
 	// add order by clause to SQL query
@@ -742,6 +748,7 @@ public class proj1 {
 		// specific ad
 		if (selection == 1) {
 		    ad_moredetail(rset);
+		    correct_input = true;
 		}
 		else {
 		    System.out.println("Selection was out of scope");
@@ -886,6 +893,7 @@ public class proj1 {
 	} catch(SQLException ex) {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
+	return;
     }
 
     public static void user_search() {
