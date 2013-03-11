@@ -550,7 +550,7 @@ public class proj1 {
 	    System.err.println("SQLException:" + ex.getMessage());
 	}
 	try {
-	    if (rset.getRow() == 0) {
+	    if (rset.getRow() != 0) {
 		System.out.println("This ad is already on promotion");
 		return;
 	    }
